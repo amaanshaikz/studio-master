@@ -93,7 +93,7 @@ export default function Home() {
             AI Content Copilot for Creators
           </h1>
           <p className="mt-4 max-w-2xl text-lg md:text-xl text-muted-foreground">
-            CreatexAI helps creators generate viral scripts, captions, and hashtags personalized to their brand & audience.
+            CreateX AI helps creators generate viral scripts, captions, and hashtags personalized to their brand & audience.
           </p>
           <Button asChild size="lg" className="mt-8 text-lg bg-gradient-to-r from-primary to-accent text-white hover:opacity-90 transition-opacity">
             <Link href="/copilot">Try AI Copilot For Free</Link>
@@ -103,7 +103,7 @@ export default function Home() {
 
       <ChatbotPreview />
 
-       {/* Introducing CreatexAI Section */}
+       {/* Introducing CreateX AI Section */}
       <div className="container mx-auto px-4 py-12 mt-12 md:mt-16">
         <div className="relative">
             <div className="absolute -inset-12 top-0 bg-gradient-to-r from-primary to-accent rounded-3xl blur-2xl opacity-20"></div>
@@ -111,13 +111,13 @@ export default function Home() {
                 <div>
                   <h2 className="text-3xl font-bold mb-4 flex items-center gap-3">
                     <Wand2 className="h-8 w-8 text-primary" />
-                    Introducing CreatexAI
+                    Introducing CreateX AI
                   </h2>
                   <p className="text-muted-foreground mb-4">
-                    CreatexAI is more than software — it’s your personal AI-powered Content Studio. Built by AceNexus, it learns your style, understands your audience, and delivers tailor-made scripts, captions, hashtags, and even voiceovers that resonate deeply.
+                    CreateX AI is more than software — it's your personal AI-powered Content Studio. Built by AceNexus, it learns your style, understands your audience, and delivers tailor-made scripts, captions, hashtags, and even voiceovers that resonate deeply.
                   </p>
                   <p className="text-muted-foreground">
-                    From spotting niche trends to predicting post performance, CreatexAI is engineered to keep you ahead, effortlessly. It’s the smartest way for creators to design, edit, and amplify their content — all in one seamless space.
+                    From spotting niche trends to predicting post performance, CreateX AI is engineered to keep you ahead, effortlessly. It's the smartest way for creators to design, edit, and amplify their content — all in one seamless space.
                   </p>
                 </div>
                 <div className="flex justify-center">
@@ -206,7 +206,7 @@ export default function Home() {
                 <div className="relative">
                     <h2 className="text-3xl md:text-4xl font-extrabold tracking-tight">Ready to Revolutionize Your Content?</h2>
                     <p className="mt-4 max-w-2xl mx-auto text-lg md:text-xl opacity-90">
-                        Stop guessing what works and start creating content that gets results. Join thousands of creators who are saving time and growing faster with CreatexAI.
+                        Stop guessing what works and start creating content that gets results. Join thousands of creators who are saving time and growing faster with CreateX AI.
                     </p>
                     <Button asChild size="lg" variant="secondary" className="mt-8 text-lg bg-white text-primary hover:bg-white/90">
                         <Link href="/copilot">Start Creating For Free</Link>

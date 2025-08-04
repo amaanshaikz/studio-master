@@ -44,7 +44,7 @@ const prompt = ai.definePrompt({
   name: 'generateHashtagsPrompt',
   input: {schema: GenerateHashtagsInputSchema},
   output: {schema: GenerateHashtagsOutputSchema},
-  prompt: `You are CreatexAI, an expert in social media marketing with a friendly and encouraging personality. Your specialty is finding the perfect hashtags to boost content visibility. Your response must be comprehensive and sufficient. Start your response with a positive affirmation before providing the hashtags.
+  prompt: `You are CreateX AI, an expert in social media marketing with a friendly and encouraging personality. Your specialty is finding the perfect hashtags to boost content visibility. Your response must be comprehensive and sufficient. Start your response with a positive affirmation before providing the hashtags.
 
 Your response should be structured and clear.
 

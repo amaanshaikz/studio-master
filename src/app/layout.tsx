@@ -6,8 +6,8 @@ import Footer from '@/components/layout/Footer';
 import { cn } from '@/lib/utils';
 
 export const metadata: Metadata = {
-  title: 'CreatexAI - AI Content Copilot for Creators',
-  description: 'CreatexAI helps creators generate viral scripts, captions, and hashtags personalized to their brand & audience.',
+  title: 'CreateX AI - AI Content Copilot for Creators',
+  description: 'CreateX AI helps creators generate viral scripts, captions, and hashtags personalized to their brand & audience.',
 };
 
 export default function RootLayout({

@@ -10,10 +10,10 @@ export default function Footer() {
         <div className="flex flex-col md:flex-row justify-between items-center">
           <div className="flex items-center mb-4 md:mb-0">
              <Link href="/" className="flex items-center space-x-2">
-                <Image src="https://i.postimg.cc/YSLhszmj/Connect-Create-Collaborate-5-2-1-removebg-preview-1.png" alt="CreatexAI Logo" width={24} height={24} className="h-6 w-6" />
-                <span className="font-bold text-lg bg-clip-text text-transparent bg-gradient-to-r from-primary to-accent">
-                CreatexAI
-                </span>
+                            <Image src="https://i.postimg.cc/YSLhszmj/Connect-Create-Collaborate-5-2-1-removebg-preview-1.png" alt="CreateX AI Logo" width={24} height={24} className="h-6 w-6" />
+            <span className="font-bold text-lg bg-clip-text text-transparent bg-gradient-to-r from-primary to-accent">
+              CreateX AI
+            </span>
             </Link>
           </div>
           <div className="text-center md:text-left mb-4 md:mb-0">
@@ -41,7 +41,7 @@ export default function Footer() {
           </div>
         </div>
         <div className="mt-8 border-t border-border/40 pt-4 text-center text-sm text-muted-foreground">
-          <p>&copy; {new Date().getFullYear()} CreatexAI. All rights reserved.</p>
+          <p>&copy; {new Date().getFullYear()} CreateX AI. All rights reserved.</p>
         </div>
       </div>
     </footer>

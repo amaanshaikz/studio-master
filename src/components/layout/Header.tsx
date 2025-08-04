@@ -58,9 +58,9 @@ export default function Header() {
       <div className="container flex h-14 items-center justify-between">
         <div className="flex items-center space-x-4 ml-2">
           <Link href="/" className="flex items-center space-x-2">
-            <Image src="https://i.postimg.cc/YSLhszmj/Connect-Create-Collaborate-5-2-1-removebg-preview-1.png" alt="CreatexAI Logo" width={24} height={24} className="h-6 w-6" />
+            <Image src="https://i.postimg.cc/YSLhszmj/Connect-Create-Collaborate-5-2-1-removebg-preview-1.png" alt="CreateX AI Logo" width={24} height={24} className="h-6 w-6" />
             <span className="font-bold text-lg bg-clip-text text-transparent bg-gradient-to-r from-primary to-accent">
-              CreatexAI
+              CreateX AI
             </span>
           </Link>
           <nav className="hidden items-center space-x-6 text-sm font-medium md:flex">
@@ -89,9 +89,9 @@ export default function Header() {
                 <SheetTitle className="sr-only">Mobile Navigation Menu</SheetTitle>
                 <SheetDescription className="sr-only">A menu for navigating the website on mobile devices.</SheetDescription>
                 <Link href="/" className="flex items-center space-x-2 mb-6" onClick={() => setMenuOpen(false)}>
-                   <Image src="https://i.postimg.cc/YSLhszmj/Connect-Create-Collaborate-5-2-1-removebg-preview-1.png" alt="CreatexAI Logo" width={24} height={24} className="h-6 w-6" />
+                   <Image src="https://i.postimg.cc/YSLhszmj/Connect-Create-Collaborate-5-2-1-removebg-preview-1.png" alt="CreateX AI Logo" width={24} height={24} className="h-6 w-6" />
                    <span className="font-bold text-lg bg-clip-text text-transparent bg-gradient-to-r from-primary to-accent">
-                      CreatexAI
+                      CreateX AI
                    </span>
                 </Link>
                 <div className="flex flex-col space-y-3">

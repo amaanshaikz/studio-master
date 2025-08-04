@@ -1,4 +1,4 @@
-# **App Name**: CreatexAI
+# **App Name**: CreateX AI
 
 ## Core Features:
 

@@ -53,7 +53,7 @@ const Section = ({ children, className }: { children: React.ReactNode; className
 const buildingBlocks = [
   {
     icon: Bot,
-    title: 'CreatexAI',
+    title: 'CreateX AI',
     description: 'A cutting-edge AI platform that acts as your creative partner. It adapts to your unique style and goals, helping you script, strategize, and optimize content with unmatched precision — so your voice always breaks through the noise.',
   },
   {
@@ -88,13 +88,13 @@ export default function AboutPage() {
             <div>
               <h2 className="text-3xl font-bold mb-4 flex items-center gap-3">
                 <Wand2 className="h-8 w-8 text-primary" />
-                Introducing CreatexAI
+                Introducing CreateX AI
               </h2>
               <p className="text-muted-foreground mb-4">
-                CreatexAI is more than software — it’s your personal AI-powered Content Studio. Built by AceNexus, it learns your style, understands your audience, and delivers tailor-made scripts, captions, hashtags, and even voiceovers that resonate deeply.
+                CreateX AI is more than software — it’s your personal AI-powered Content Studio. Built by AceNexus, it learns your style, understands your audience, and delivers tailor-made scripts, captions, hashtags, and even voiceovers that resonate deeply.
               </p>
               <p className="text-muted-foreground">
-                From spotting niche trends to predicting post performance, CreatexAI is engineered to keep you ahead, effortlessly. It’s the smartest way for creators to design, edit, and amplify their content — all in one seamless space.
+                From spotting niche trends to predicting post performance, CreateX AI is engineered to keep you ahead, effortlessly. It’s the smartest way for creators to design, edit, and amplify their content — all in one seamless space.
               </p>
             </div>
             <div className="flex justify-center">
@@ -113,7 +113,7 @@ export default function AboutPage() {
             <CardTitle className="text-2xl">Our Vision</CardTitle>
           </CardHeader>
           <CardContent className="p-0 mt-4">
-            <p className="text-muted-foreground">To build a world where every emerging creator, no matter their starting point, has access to advanced, intuitive tools like CreatexAI, meaningful guidance, and a global network to help them become a powerful brand of their own.</p>
+            <p className="text-muted-foreground">To build a world where every emerging creator, no matter their starting point, has access to advanced, intuitive tools like CreateX AI, meaningful guidance, and a global network to help them become a powerful brand of their own.</p>
           </CardContent>
         </Card>
         <Card className="p-8">
@@ -122,7 +122,7 @@ export default function AboutPage() {
             <CardTitle className="text-2xl">Our Mission</CardTitle>
            </CardHeader>
           <CardContent className="p-0 mt-4">
-            <p className="text-muted-foreground">To unlock every creator’s potential with cutting-edge tools like CreatexAI and a powerful global community, so they can stand out — not burn out — in the fast-changing creator landscape.</p>
+            <p className="text-muted-foreground">To unlock every creator’s potential with cutting-edge tools like CreateX AI and a powerful global community, so they can stand out — not burn out — in the fast-changing creator landscape.</p>
           </CardContent>
         </Card>
       </Section>
@@ -149,9 +149,9 @@ export default function AboutPage() {
         <div className="absolute -inset-12 top-0 bg-gradient-to-r from-primary to-accent rounded-3xl blur-2xl opacity-20"></div>
         <Section className="relative bg-card/60 backdrop-blur-sm text-foreground p-8 md:p-12 rounded-2xl text-center border border-border/50">
             <Image src="https://i.postimg.cc/YSLhszmj/Connect-Create-Collaborate-5-2-1-removebg-preview-1.png" alt="AceNexus Logo" width={48} height={48} className="h-12 w-12 mx-auto mb-4" />
-            <h2 className="text-3xl font-bold mb-4">Why AceNexus & CreatexAI?</h2>
+            <h2 className="text-3xl font-bold mb-4">Why AceNexus & CreateX AI?</h2>
             <p className="max-w-3xl mx-auto text-lg text-muted-foreground mb-6">
-            Because we’re not just building an AI tool. We’re shaping the next era of the creator economy. With CreatexAI, your content isn’t just made — it’s crafted to resonate, perform, and elevate your brand. And with our thriving community, you’ll never have to navigate this journey alone.
+            Because we’re not just building an AI tool. We’re shaping the next era of the creator economy. With CreateX AI, your content isn’t just made — it’s crafted to resonate, perform, and elevate your brand. And with our thriving community, you’ll never have to navigate this journey alone.
             </p>
         </Section>
       </div>
@@ -162,7 +162,7 @@ export default function AboutPage() {
             <h2 className="text-3xl font-bold">Join Us & Be Part of Something Extraordinary</h2>
         </div>
         <p className="max-w-3xl mx-auto text-lg text-muted-foreground mb-6">
-            At AceNexus, through innovations like CreatexAI, we’re empowering creators everywhere to own their growth, magnify their influence, and shape what’s next.
+            At AceNexus, through innovations like CreateX AI, we’re empowering creators everywhere to own their growth, magnify their influence, and shape what’s next.
         </p>
         <Button asChild size="lg" className="bg-gradient-to-r from-primary to-accent text-white hover:opacity-90 transition-opacity">
             <Link href="/join">Join Our Community</Link>

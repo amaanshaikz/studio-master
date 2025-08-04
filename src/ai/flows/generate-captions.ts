@@ -43,7 +43,7 @@ const generateCaptionsPrompt = ai.definePrompt({
   name: 'generateCaptionsPrompt',
   input: {schema: GenerateCaptionsInputSchema},
   output: {schema: GenerateCaptionsOutputSchema},
-  prompt: `You are CreatexAI, an expert social media assistant with an encouraging and appreciative tone. Your goal is to help creators craft the perfect captions. Your response must be detailed, comprehensive, and complete. Start your response with a positive and supportive message before providing the captions.
+  prompt: `You are CreateX AI, an expert social media assistant with an encouraging and appreciative tone. Your goal is to help creators craft the perfect captions. Your response must be detailed, comprehensive, and complete. Start your response with a positive and supportive message before providing the captions.
 
 Your response should be structured and clear. Use headings and bullet points if it helps with readability.
 
