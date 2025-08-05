@@ -91,10 +91,10 @@ export default function AboutPage() {
                 Introducing CreateX AI
               </h2>
               <p className="text-muted-foreground mb-4">
-                CreateX AI is more than software — it’s your personal AI-powered Content Studio. Built by AceNexus, it learns your style, understands your audience, and delivers tailor-made scripts, captions, hashtags, and even voiceovers that resonate deeply.
+                Personalized AI content copilot, specially engineered to keep creators ahead with their content creation, effortlessly through our CreateX AI which is trained for your specific channel and audience to give you smarter assistance and tailored suggestions for a seamless Content Creation.
               </p>
               <p className="text-muted-foreground">
-                From spotting niche trends to predicting post performance, CreateX AI is engineered to keep you ahead, effortlessly. It’s the smartest way for creators to design, edit, and amplify their content — all in one seamless space.
+                — Your Own Personal Content AI
               </p>
             </div>
             <div className="flex justify-center">

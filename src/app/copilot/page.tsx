@@ -25,6 +25,7 @@ import { Switch } from '@/components/ui/switch';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import Image from 'next/image';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
+import PlatformConnectionOverlay from '@/components/platforms/PlatformConnectionOverlay';
 
 
 type Tool = 'chat' | 'ideas' | 'scripts' | 'captions' | 'hashtags';
@@ -408,6 +409,7 @@ export default function CopilotPage() {
     const [messages, setMessages] = useState<Message[]>([]);
     const [isLoading, setIsLoading] = useState(false);
     const [attachedFile, setAttachedFile] = useState<{name: string, content: string, type: string} | null>(null);
+    const [showPlatformOverlay, setShowPlatformOverlay] = useState(true);
     const fileInputRef = useRef<HTMLInputElement>(null);
     const scrollAreaRef = useRef<HTMLDivElement>(null);
     const { toast } = useToast();
@@ -506,6 +508,9 @@ export default function CopilotPage() {
     };
 
     const submitFollowUpPrompt = (prompt: string) => {
+      // Hide the platform overlay when user clicks follow-up prompts
+      setShowPlatformOverlay(false);
+      
       const isChatTool = activeTool === 'chat';
       const needsSwitch = !isChatTool;
       
@@ -526,6 +531,9 @@ export default function CopilotPage() {
     };
     
     const handleToolSubmit: SubmitHandler<GenerationInput & ChatInput> = useCallback(async (values) => {
+        // Hide the platform overlay when user starts chatting
+        setShowPlatformOverlay(false);
+        
         setIsLoading(true);
         const userMessageText = activeTool === 'chat' ? values.query : values.topic;
         const userMessage: Message = { 
@@ -644,7 +652,7 @@ export default function CopilotPage() {
     return (
         <CopilotContext.Provider value={{ activeTool }}>
         <FormProvider {...form}>
-            <div className="flex-1 grid grid-cols-1 lg:grid-cols-3 gap-8 container mx-auto px-4 py-8 md:py-12">
+            <div className="flex-1 grid grid-cols-1 lg:grid-cols-3 gap-8 container mx-auto px-4 py-8 md:py-12 bg-black min-h-screen">
                 
                 {activeTool !== 'chat' && (
                   <div className="hidden lg:block lg:col-span-1">
@@ -659,7 +667,10 @@ export default function CopilotPage() {
                     <ScrollArea className="flex-grow pr-4" ref={scrollAreaRef}>
                         <div className="space-y-6 max-w-3xl mx-auto">
                             {messages.length === 0 ? (
-                                <div className="flex flex-col items-center justify-center text-center text-muted-foreground pt-16">
+                                <div className="flex flex-col items-center justify-center text-center text-muted-foreground pt-16 relative min-h-[400px]">
+                                    {showPlatformOverlay && (
+                                        <PlatformConnectionOverlay onClose={() => setShowPlatformOverlay(false)} />
+                                    )}
                                     <div className="p-4 rounded-full bg-primary/10 border border-primary/20 mb-4">
                                         <BrainCircuit className="h-12 w-12 text-primary" />
                                     </div>

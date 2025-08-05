@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetTrigger, SheetTitle, SheetDescription } from '@/components/ui/sheet';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
+import { useSession, signOut } from 'next-auth/react';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -17,41 +18,21 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 
-
 const navLinks = [
   { href: '/features', label: 'Features' },
-  { href: '/explore', label: 'Explore' },
   { href: '/about', label: 'About' },
 ];
 
 export default function Header() {
   const [isMenuOpen, setMenuOpen] = useState(false);
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [isMounted, setIsMounted] = useState(false);
+  const { data: session, status } = useSession();
   const router = useRouter();
 
-  useEffect(() => {
-    setIsMounted(true);
-    const checkLoginStatus = () => {
-        const loggedIn = typeof window !== 'undefined' && localStorage.getItem('isLoggedIn') === 'true';
-        setIsLoggedIn(loggedIn);
-    };
-    checkLoginStatus();
-    
-    window.addEventListener('storage', checkLoginStatus);
-    
-    return () => {
-      window.removeEventListener('storage', checkLoginStatus);
-    };
-  }, []);
-
-  const handleLogout = () => {
-    localStorage.removeItem('isLoggedIn');
-    setIsLoggedIn(false);
+  const handleLogout = async () => {
+    await signOut({ redirect: false });
     router.push('/');
     router.refresh();
   };
-
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -105,28 +86,32 @@ export default function Header() {
                       {link.label}
                     </Link>
                   ))}
-                   {isMounted && isLoggedIn && <Link
-                      href="/account"
-                      className="text-lg transition-colors hover:text-foreground"
-                      onClick={() => setMenuOpen(false)}
-                    >
-                      Account
-                    </Link>}
-                     {isMounted && isLoggedIn && <Button
-                      variant="ghost"
-                      className="text-lg justify-start p-0 h-auto hover:text-foreground"
-                      onClick={() => {
-                        handleLogout();
-                        setMenuOpen(false);
-                      }}
-                    >
-                      Logout
-                    </Button>}
+                   {status === 'authenticated' && session && (
+                    <>
+                      <Link
+                        href="/account"
+                        className="text-lg transition-colors hover:text-foreground"
+                        onClick={() => setMenuOpen(false)}
+                      >
+                        Account
+                      </Link>
+                      <Button
+                        variant="ghost"
+                        className="text-lg justify-start p-0 h-auto hover:text-foreground"
+                        onClick={() => {
+                          handleLogout();
+                          setMenuOpen(false);
+                        }}
+                      >
+                        Logout
+                      </Button>
+                    </>
+                   )}
                 </div>
                  <Button asChild className="mt-6 bg-gradient-to-r from-primary to-accent text-white" onClick={() => setMenuOpen(false)}>
                   <Link href="/copilot">Try AI Copilot</Link>
                 </Button>
-                {isMounted && !isLoggedIn && (
+                {status === 'unauthenticated' && (
                   <div className="mt-4 flex flex-col space-y-2">
                      <Button asChild variant="ghost" onClick={() => setMenuOpen(false)}>
                       <Link href="/login">Login</Link>
@@ -144,40 +129,45 @@ export default function Header() {
              <Button asChild size="sm" className="bg-gradient-to-r from-primary to-accent text-white">
                 <Link href="/copilot">Try AI Copilot</Link>
             </Button>
-            {isMounted && (
-              isLoggedIn ? (
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" size="icon">
-                      <User className="h-5 w-5" />
-                      <span className="sr-only">Account</span>
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end">
-                    <DropdownMenuLabel>My Account</DropdownMenuLabel>
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem asChild>
-                       <Link href="/account">
-                          <User className="mr-2 h-4 w-4" />
-                          <span>Profile</span>
-                        </Link>
-                    </DropdownMenuItem>
-                    <DropdownMenuItem onClick={handleLogout}>
-                      <LogOut className="mr-2 h-4 w-4" />
-                      <span>Log out</span>
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              ) : (
-                <>
-                  <Button asChild variant="ghost" size="sm">
-                    <Link href="/login">Login</Link>
+            {status === 'loading' ? (
+              <div className="w-8 h-8 animate-pulse bg-gray-200 rounded-full" />
+            ) : status === 'authenticated' && session ? (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" size="icon">
+                    <User className="h-5 w-5" />
+                    <span className="sr-only">Account</span>
                   </Button>
-                  <Button asChild variant="ghost" size="sm">
-                    <Link href="/signup">Sign Up</Link>
-                  </Button>
-                </>
-              )
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuLabel>
+                    <div className="flex flex-col space-y-1">
+                      <p className="text-sm font-medium leading-none">{session.user?.name}</p>
+                      <p className="text-xs leading-none text-muted-foreground">{session.user?.email}</p>
+                    </div>
+                  </DropdownMenuLabel>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem asChild>
+                     <Link href="/account">
+                        <User className="mr-2 h-4 w-4" />
+                        <span>Profile</span>
+                      </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={handleLogout}>
+                    <LogOut className="mr-2 h-4 w-4" />
+                    <span>Log out</span>
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            ) : (
+              <>
+                <Button asChild variant="ghost" size="sm">
+                  <Link href="/login">Login</Link>
+                </Button>
+                <Button asChild variant="ghost" size="sm">
+                  <Link href="/signup">Sign Up</Link>
+                </Button>
+              </>
             )}
           </div>
         </div>

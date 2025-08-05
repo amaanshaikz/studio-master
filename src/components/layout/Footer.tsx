@@ -41,7 +41,17 @@ export default function Footer() {
           </div>
         </div>
         <div className="mt-8 border-t border-border/40 pt-4 text-center text-sm text-muted-foreground">
-          <p>&copy; {new Date().getFullYear()} CreateX AI. All rights reserved.</p>
+          <div className="flex flex-col sm:flex-row justify-center items-center gap-4">
+            <p>&copy; {new Date().getFullYear()} CreateX AI. All rights reserved.</p>
+                      <div className="flex items-center gap-4">
+            <Link href="/privacy" className="text-muted-foreground hover:text-primary transition-colors">
+              Privacy Policy
+            </Link>
+            <Link href="/terms" className="text-muted-foreground hover:text-primary transition-colors">
+              Terms of Service
+            </Link>
+          </div>
+          </div>
         </div>
       </div>
     </footer>

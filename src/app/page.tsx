@@ -93,7 +93,7 @@ export default function Home() {
             AI Content Copilot for Creators
           </h1>
           <p className="mt-4 max-w-2xl text-lg md:text-xl text-muted-foreground">
-            CreateX AI helps creators generate viral scripts, captions, and hashtags personalized to their brand & audience.
+            Outsmart the algorithm — go viral, stay relevant, and consistently create engaging content tailored to your brand, your audience, and your unique voice.
           </p>
           <Button asChild size="lg" className="mt-8 text-lg bg-gradient-to-r from-primary to-accent text-white hover:opacity-90 transition-opacity">
             <Link href="/copilot">Try AI Copilot For Free</Link>
@@ -114,10 +114,10 @@ export default function Home() {
                     Introducing CreateX AI
                   </h2>
                   <p className="text-muted-foreground mb-4">
-                    CreateX AI is more than software — it's your personal AI-powered Content Studio. Built by AceNexus, it learns your style, understands your audience, and delivers tailor-made scripts, captions, hashtags, and even voiceovers that resonate deeply.
+                    Personalized AI content copilot, specially engineered to keep creators ahead with their content creation, effortlessly through our CreateX AI which is trained for your specific channel and audience to give you smarter assistance and tailored suggestions for a seamless Content Creation.
                   </p>
                   <p className="text-muted-foreground">
-                    From spotting niche trends to predicting post performance, CreateX AI is engineered to keep you ahead, effortlessly. It's the smartest way for creators to design, edit, and amplify their content — all in one seamless space.
+                    — Your Own Personal Content AI
                   </p>
                 </div>
                 <div className="flex justify-center">
