@@ -655,7 +655,7 @@ export default function CopilotPage() {
     return (
         <CopilotContext.Provider value={{ activeTool }}>
         <FormProvider {...form}>
-            <div className="flex-1 grid grid-cols-1 lg:grid-cols-3 gap-8 container mx-auto px-4 py-8 md:py-12 bg-black min-h-screen">
+            <div className="flex-1 grid grid-cols-1 lg:grid-cols-3 gap-8 container mx-auto px-2 sm:px-4 py-4 sm:py-8 md:py-12 bg-black min-h-screen">
                 
                 {activeTool !== 'chat' && (
                   <div className="hidden lg:block lg:col-span-1">
@@ -664,48 +664,50 @@ export default function CopilotPage() {
                 )}
                 
                 <div className={cn(
-                    "flex flex-col h-[calc(100vh-theme(height.14)-100px)]", 
+                    "flex flex-col h-[calc(100vh-4rem)] sm:h-[calc(100vh-5rem)] md:h-[calc(100vh-theme(height.14)-100px)]", 
                     activeTool === 'chat' ? 'lg:col-span-3' : 'lg:col-span-2'
                 )}>
-                    <ScrollArea className="flex-grow pr-4" ref={scrollAreaRef}>
-                        <div className="space-y-6 max-w-3xl mx-auto">
+                    <ScrollArea className="flex-grow pr-2 sm:pr-4 overflow-y-auto" ref={scrollAreaRef}>
+                        <div className="space-y-4 sm:space-y-6 max-w-3xl mx-auto px-2 sm:px-0">
                             {messages.length === 0 ? (
-                                <div className="flex flex-col items-center justify-center text-center text-muted-foreground pt-16 relative min-h-[400px]">
+                                <div className="flex flex-col items-center justify-center text-center text-muted-foreground pt-8 sm:pt-16 relative min-h-[300px] sm:min-h-[400px]">
                                     {showPlatformOverlay && (
                                         <PlatformConnectionOverlay onClose={() => setShowPlatformOverlay(false)} />
                                     )}
-                                    <div className="p-4 rounded-full bg-primary/10 border border-primary/20 mb-4">
-                                        <BrainCircuit className="h-12 w-12 text-primary" />
+                                    <div className="p-3 sm:p-4 rounded-full bg-primary/10 border border-primary/20 mb-3 sm:mb-4">
+                                        <BrainCircuit className="h-8 w-8 sm:h-12 sm:w-12 text-primary" />
                                     </div>
-                                    <h2 className="text-2xl font-bold text-foreground">Content Copilot</h2>
-                                    <p className="max-w-md">Your AI partner for content creation. Select a tool below and provide some details to get started.</p>
+                                    <h2 className="text-xl sm:text-2xl font-bold text-foreground">Content Copilot</h2>
+                                    <p className="max-w-md text-sm sm:text-base px-4">Your AI partner for content creation. Select a tool below and provide some details to get started.</p>
                                 </div>
                             ) : (
                                 messages.map((message, index) => (
-                                    <div key={index} className={cn('flex flex-col gap-4', message.role === 'user' ? 'items-end' : 'items-start')}>
-                                       <div className={cn('flex items-start gap-4', message.role === 'user' ? 'justify-end' : 'justify-start')}>
-                                            {message.role === 'model' && <div className="p-2 rounded-full bg-primary/10 border border-primary/20 flex-shrink-0"><Bot className="w-6 h-6 text-primary" /></div>}
+                                    <div key={index} className={cn('flex flex-col gap-2 sm:gap-4', message.role === 'user' ? 'items-end' : 'items-start')}>
+                                       <div className={cn('flex items-start gap-2 sm:gap-4', message.role === 'user' ? 'justify-end' : 'justify-start')}>
+                                            {message.role === 'model' && <div className="p-1.5 sm:p-2 rounded-full bg-primary/10 border border-primary/20 flex-shrink-0"><Bot className="w-4 h-4 sm:w-6 sm:h-6 text-primary" /></div>}
                                             <div className={cn(
-                                                'relative group max-w-xl px-4 py-3', 
+                                                'relative group max-w-[calc(100vw-3rem)] sm:max-w-xl px-3 py-2.5 sm:px-4 sm:py-3 text-sm sm:text-base', 
                                                 message.role === 'user' 
                                                     ? 'bg-neutral-800 text-primary-foreground rounded-2xl' 
                                                     : 'text-foreground'
                                             )}>
-                                                {renderMessageContent(message.content)}
+                                                <div className="whitespace-pre-wrap break-words">
+                                                    {renderMessageContent(message.content)}
+                                                </div>
                                             </div>
                                        </div>
                                        {message.role === 'model' && message.content.followUpPrompts && message.content.followUpPrompts.length > 0 && index === messages.length - 1 && !isLoading && (
-                                            <div className="flex flex-wrap gap-2 max-w-xl ml-14">
+                                            <div className="flex flex-wrap gap-1.5 sm:gap-2 max-w-[calc(100vw-3rem)] sm:max-w-xl ml-8 sm:ml-14">
                                               {message.content.followUpPrompts.map((prompt, i) => (
                                                   <Button
                                                       key={i}
                                                       variant="outline"
                                                       size="sm"
                                                       onClick={() => submitFollowUpPrompt(prompt)}
-                                                      className="text-xs h-auto py-1.5 px-3"
+                                                      className="text-xs h-auto py-1.5 px-2 sm:px-3 min-h-[32px] sm:min-h-[36px]"
                                                   >
-                                                      <Lightbulb className="h-3 w-3 mr-2" />
-                                                      {prompt}
+                                                      <Lightbulb className="h-3 w-3 mr-1.5 sm:mr-2" />
+                                                      <span className="truncate max-w-[120px] sm:max-w-none">{prompt}</span>
                                                   </Button>
                                               ))}
                                             </div>
@@ -714,17 +716,17 @@ export default function CopilotPage() {
                                 ))
                             )}
                             {isLoading && (
-                                <div className="flex items-start gap-4 justify-start">
-                                <div className="p-2 rounded-full bg-primary/10 border border-primary/20 flex-shrink-0"><Bot className="w-6 h-6 text-primary" /></div>
-                                    <div className="max-w-md rounded-xl px-4 py-3 flex items-center">
-                                        <Loader2 className="h-5 w-5 animate-spin text-primary" />
+                                <div className="flex items-start gap-2 sm:gap-4 justify-start">
+                                <div className="p-1.5 sm:p-2 rounded-full bg-primary/10 border border-primary/20 flex-shrink-0"><Bot className="w-4 h-4 sm:w-6 sm:h-6 text-primary" /></div>
+                                    <div className="max-w-[calc(100vw-3rem)] sm:max-w-md rounded-xl px-3 py-2.5 sm:px-4 sm:py-3 flex items-center">
+                                        <Loader2 className="h-4 w-4 sm:h-5 sm:w-5 animate-spin text-primary" />
                                     </div>
                                 </div>
                             )}
                         </div>
                     </ScrollArea>
                     
-                    <div className="mt-auto pt-4">
+                    <div className="mt-auto pt-2 sm:pt-4 px-2 sm:px-0">
                         {activeTool !== 'chat' && (
                             <div className="lg:hidden">
                                 <AdvancedOptions />
@@ -741,24 +743,24 @@ export default function CopilotPage() {
                                                 <FormControl>
                                                     <div className="relative">
                                                         {attachedFile && (
-                                                            <div className="absolute top-2.5 left-2.5">
-                                                                <Badge variant="secondary" className="pl-2 h-auto">
+                                                            <div className="absolute top-2 left-2 sm:top-2.5 sm:left-2.5">
+                                                                <Badge variant="secondary" className="pl-1.5 sm:pl-2 h-auto text-xs">
                                                                     {attachedFile.type.startsWith('image/') ? (
-                                                                        <Image src={attachedFile.content} alt={attachedFile.name} width={24} height={24} className="h-6 w-6 rounded-sm object-cover mr-2"/>
+                                                                        <Image src={attachedFile.content} alt={attachedFile.name} width={20} height={20} className="h-5 w-5 sm:h-6 sm:w-6 rounded-sm object-cover mr-1.5 sm:mr-2"/>
                                                                     ) : (
                                                                         <FileCheck2 className="h-3 w-3 mr-1" />
                                                                     )}
-                                                                    <span className="truncate max-w-[120px] sm:max-w-xs">{attachedFile.name}</span>
+                                                                    <span className="truncate max-w-[80px] sm:max-w-[120px] md:max-w-xs">{attachedFile.name}</span>
                                                                     <Button
                                                                         variant="ghost"
                                                                         size="icon"
-                                                                        className="h-5 w-5 ml-1 rounded-full hover:bg-background/20"
+                                                                        className="h-4 w-4 sm:h-5 sm:w-5 ml-1 rounded-full hover:bg-background/20"
                                                                         onClick={() => {
                                                                             setAttachedFile(null);
                                                                             form.setValue('documentContent', '');
                                                                         }}
                                                                     >
-                                                                        <X className="h-3 w-3" />
+                                                                        <X className="h-2.5 w-2.5 sm:h-3 sm:w-3" />
                                                                     </Button>
                                                                 </Badge>
                                                             </div>
@@ -770,8 +772,8 @@ export default function CopilotPage() {
                                                                 : `Enter a topic for ${toolConfig[activeTool].label}...`
                                                             }
                                                             className={cn(
-                                                                "resize-none rounded-2xl border-input bg-card p-4 pr-24",
-                                                                attachedFile ? "pt-12" : ""
+                                                                "resize-none rounded-2xl border-input bg-card p-3 sm:p-4 pr-20 sm:pr-24 text-sm sm:text-base min-h-[44px] max-h-[120px]",
+                                                                attachedFile ? "pt-10 sm:pt-12" : ""
                                                             )}
                                                             {...field}
                                                             onKeyDown={(e) => {
@@ -783,24 +785,24 @@ export default function CopilotPage() {
                                                         />
                                                     </div>
                                                 </FormControl>
-                                                <FormMessage className="pl-4" />
+                                                <FormMessage className="pl-3 sm:pl-4" />
                                             </FormItem>
                                         )}
                                     />
-                                    <div className="absolute bottom-3 right-3 flex items-center gap-2">
+                                    <div className="absolute bottom-2 sm:bottom-3 right-2 sm:right-3 flex items-center gap-1.5 sm:gap-2">
                                         <input type="file" ref={fileInputRef} onChange={handleFileChange} className="hidden" accept=".txt,.md,.html,image/*,video/*" />
-                                        <Button type="button" variant="ghost" size="icon" className="h-8 w-8 rounded-full" onClick={() => fileInputRef.current?.click()}>
-                                            <Paperclip className="h-5 w-5" />
+                                        <Button type="button" variant="ghost" size="icon" className="h-8 w-8 sm:h-8 sm:w-8 rounded-full min-h-[32px] sm:min-h-[32px]" onClick={() => fileInputRef.current?.click()}>
+                                            <Paperclip className="h-4 w-4 sm:h-5 sm:w-5" />
                                         </Button>
-                                        <Button type="submit" size="icon" className="h-8 w-8 rounded-full bg-primary text-primary-foreground hover:bg-primary/90" disabled={isLoading}>
-                                            {isLoading ? <Loader2 className="h-5 w-5 animate-spin" /> : <Send className="h-5 w-5" />}
+                                        <Button type="submit" size="icon" className="h-8 w-8 sm:h-8 sm:w-8 rounded-full bg-primary text-primary-foreground hover:bg-primary/90 min-h-[32px] sm:min-h-[32px]" disabled={isLoading}>
+                                            {isLoading ? <Loader2 className="h-4 w-4 sm:h-5 sm:w-5 animate-spin" /> : <Send className="h-4 w-4 sm:h-5 sm:w-5" />}
                                         </Button>
                                     </div>
                                 </div>
                             </form>
                             
-                            <div className="mt-3 flex items-center justify-center gap-2">
-                                <div className="bg-card/60 backdrop-blur-sm border border-border/50 rounded-lg p-1 flex-grow flex items-center justify-center gap-1">
+                            <div className="mt-2 sm:mt-3 flex items-center justify-center gap-1.5 sm:gap-2 px-2 sm:px-0">
+                                <div className="bg-card/60 backdrop-blur-sm border border-border/50 rounded-lg p-1 flex-grow flex items-center justify-center gap-0.5 sm:gap-1">
                                     {Object.keys(toolConfig).map((key) => {
                                         const toolKey = key as Tool;
                                         const tool = toolConfig[toolKey];
@@ -811,15 +813,15 @@ export default function CopilotPage() {
                                                         <Button
                                                             variant="ghost"
                                                             className={cn(
-                                                                "flex-1",
+                                                                "flex-1 min-h-[36px] sm:min-h-[40px] text-xs sm:text-sm",
                                                                 activeTool === key && "bg-accent text-accent-foreground hover:bg-accent hover:text-accent-foreground"
                                                             )}
                                                             onClick={() => {
                                                                 setActiveTool(toolKey);
                                                             }}
                                                         >
-                                                            <tool.icon className="h-5 w-5" />
-                                                            <span className="hidden sm:inline ml-2">{tool.label}</span>
+                                                            <tool.icon className="h-4 w-4 sm:h-5 sm:w-5" />
+                                                            <span className="hidden sm:inline ml-1.5 sm:ml-2">{tool.label}</span>
                                                         </Button>
                                                     </TooltipTrigger>
                                                     <TooltipContent>
