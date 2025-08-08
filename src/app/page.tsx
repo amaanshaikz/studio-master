@@ -90,7 +90,7 @@ export default function Home() {
       <section className="container mx-auto px-4 pt-16 md:pt-24 pb-8 text-center">
         <div className="flex flex-col items-center">
           <h1 className="text-4xl md:text-6xl font-extrabold tracking-tight bg-clip-text text-transparent bg-gradient-to-b from-foreground to-foreground/70">
-            AI Content Copilot for Creators
+            Personalized AI Content Copilot
           </h1>
           <p className="mt-4 max-w-2xl text-lg md:text-xl text-muted-foreground">
             Outsmart the algorithm — go viral, stay relevant, and consistently create engaging content tailored to your brand, your audience, and your unique voice.

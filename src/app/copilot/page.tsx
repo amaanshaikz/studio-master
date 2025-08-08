@@ -25,6 +25,7 @@ import { Switch } from '@/components/ui/switch';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import Image from 'next/image';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
+import { TypingAnimation } from '@/components/ui/typing-animation';
 import PlatformConnectionOverlay from '@/components/platforms/PlatformConnectionOverlay';
 
 
@@ -409,7 +410,7 @@ export default function CopilotPage() {
     const [messages, setMessages] = useState<Message[]>([]);
     const [isLoading, setIsLoading] = useState(false);
     const [attachedFile, setAttachedFile] = useState<{name: string, content: string, type: string} | null>(null);
-    const [showPlatformOverlay, setShowPlatformOverlay] = useState(true);
+    const [showPlatformOverlay, setShowPlatformOverlay] = useState(false);
     const fileInputRef = useRef<HTMLInputElement>(null);
     const scrollAreaRef = useRef<HTMLDivElement>(null);
     const { toast } = useToast();
@@ -551,7 +552,7 @@ export default function CopilotPage() {
 
         const history = newMessages.slice(-5, -1).map(messageToHistoryItem);
         
-        let result;
+        let result: any;
         const submissionData = { ...values, history };
         if (activeTool !== 'chat') {
             submissionData.topic = userMessageText;
@@ -562,19 +563,19 @@ export default function CopilotPage() {
         try {
             switch (activeTool) {
                 case 'chat':
-                    result = await handleGenerateChatResponse(submissionData);
+                    result = await handleGenerateChatResponse(submissionData as ChatInput);
                     if (result.data) setMessages((prev) => [...prev, { role: 'model', content: { chatResponse: result.data.response, followUpPrompts: result.data.followUpPrompts } }]);
                     break;
                 case 'scripts':
-                    result = await handleGenerateScript(submissionData);
+                    result = await handleGenerateScript(submissionData as GenerationInput);
                     if (result.data) setMessages((prev) => [...prev, { role: 'model', content: { script: result.data.script, followUpPrompts: result.data.followUpPrompts } }]);
                     break;
                 case 'captions':
-                    result = await handleGenerateCaptions(submissionData);
+                    result = await handleGenerateCaptions(submissionData as GenerationInput);
                     if (result.data) setMessages((prev) => [...prev, { role: 'model', content: { captions: result.data.captions, followUpPrompts: result.data.followUpPrompts } }]);
                     break;
                 case 'hashtags':
-                    result = await handleGenerateHashtags(submissionData);
+                    result = await handleGenerateHashtags(submissionData as GenerationInput);
                     if (result.data) setMessages((prev) => [...prev, { role: 'model', content: { hashtags: result.data.hashtags, followUpPrompts: result.data.followUpPrompts } }]);
                     break;
                 case 'ideas':
@@ -589,25 +590,27 @@ export default function CopilotPage() {
             }
 
         } catch (error) {
-             toast({ variant: 'destructive', title: 'Error', description: 'An unexpected error occurred.' });
-             setMessages((prev) => prev.slice(0, -1));
+            console.error('Error:', error);
+            toast({ variant: 'destructive', title: 'Error', description: 'Something went wrong. Please try again.' });
+            setMessages((prev) => prev.slice(0, -1));
         } finally {
             setIsLoading(false);
+            // Reset the form to clear the input fields
             const currentValues = form.getValues();
             form.reset({
                 ...currentValues,
-                topic: '',
                 query: '',
+                topic: '',
                 history: [], // Clear history from form state
                 // Keep advanced options by reusing currentValues
             });
-             if (attachedFile) {
+            if (attachedFile) {
                 form.setValue('documentContent', attachedFile.content);
             } else {
                  form.setValue('documentContent', '');
             }
         }
-    }, [activeTool, form, toast, attachedFile, messages]);
+    }, [activeTool, messages, attachedFile, toast]);
     
     const renderMessageContent = (content: MessageContent) => {
         let responseText = '';
@@ -624,13 +627,13 @@ export default function CopilotPage() {
         }
 
         if (responseText) {
-             return <p className="whitespace-pre-wrap">{responseText}</p>
+             return <TypingAnimation text={responseText} speed={15} className="whitespace-pre-wrap" />
         }
        
         if (content.text) {
             return (
                 <div className="flex flex-col gap-2">
-                  <p className="whitespace-pre-wrap">{content.text}</p>
+                  <div className="whitespace-pre-wrap">{content.text}</div>
                   {content.documentName && content.documentContent && (
                     <div className="flex items-center gap-2 text-xs text-accent-foreground/80 bg-accent/30 rounded-md p-2 border border-accent/50 w-fit">
                       {content.documentContent.startsWith('data:image/') ? (

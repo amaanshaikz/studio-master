@@ -15,13 +15,28 @@ SUPABASE_SERVICE_ROLE_KEY=your_supabase_service_role_key
 # NextAuth Configuration
 NEXTAUTH_URL=http://localhost:9002
 NEXTAUTH_SECRET=your_nextauth_secret_key_here
+
+# Google OAuth Configuration
+GOOGLE_CLIENT_ID=your_google_client_id
+GOOGLE_CLIENT_SECRET=your_google_client_secret
 ```
 
 ## Supabase Setup
 
 1. Create a new Supabase project at https://supabase.com
 2. Get your project URL and API keys from the project settings
-3. The authentication tables will be automatically created by NextAuth
+3. Run the SQL migration in `supabase-migration.sql` to create the required tables
+4. The authentication tables will be automatically managed by NextAuth with the Supabase adapter
+
+## Google OAuth Setup
+
+1. Go to the Google Cloud Console (https://console.cloud.google.com/)
+2. Create a new project or select an existing one
+3. Enable the Google+ API
+4. Go to Credentials and create an OAuth 2.0 Client ID
+5. Add your domain to the authorized origins
+6. Add `http://localhost:9002/api/auth/callback/google` to authorized redirect URIs
+7. Copy the Client ID and Client Secret to your `.env.local` file
 
 ## Generate NextAuth Secret
 
@@ -31,6 +46,16 @@ Generate a random secret key for NextAuth:
 openssl rand -base64 32
 ```
 
+## Database Schema
+
+The following tables are created by the migration:
+
+- `users` - User accounts and profiles
+- `accounts` - OAuth provider accounts (Google, etc.)
+- `sessions` - User sessions
+- `verification_tokens` - Email verification tokens
+- `password_reset_tokens` - Password reset tokens
+
 ## Features
 
 ### Enhanced Login Page
@@ -39,6 +64,7 @@ openssl rand -base64 32
 - Password visibility toggle
 - Loading states and error handling
 - Responsive design
+- Google OAuth integration
 
 ### Enhanced Signup Page
 - Full name, email, and password fields
@@ -46,9 +72,12 @@ openssl rand -base64 32
 - Password confirmation with visual feedback
 - Real-time validation
 - Terms of service links
+- Google OAuth integration
 
 ### Authentication Flow
-- NextAuth.js integration with Supabase
+- NextAuth.js integration with Supabase adapter
+- Google OAuth provider
+- Credentials provider with bcrypt password hashing
 - Protected routes
 - Session management
 - Automatic redirects
@@ -62,17 +91,33 @@ openssl rand -base64 32
 ## Usage
 
 1. Set up your environment variables
-2. Run the development server: `npm run dev`
-3. Visit http://localhost:9002
-4. Test the login/signup flow
+2. Run the SQL migration in your Supabase project
+3. Run the development server: `npm run dev`
+4. Visit http://localhost:9002
+5. Test the login/signup flow
 
 ## Security Features
 
-- Password hashing with Supabase Auth
+- Password hashing with bcrypt
 - JWT token management
 - Protected routes
 - Form validation
 - CSRF protection via NextAuth
+- Row Level Security (RLS) in Supabase
+- OAuth 2.0 with Google
+
+## Migration from Supabase Auth
+
+This project has been migrated from Supabase Auth to NextAuth.js with the following changes:
+
+- ✅ Removed all `supabase.auth` calls
+- ✅ Added NextAuth.js with Supabase adapter
+- ✅ Added Google OAuth provider
+- ✅ Updated registration to use bcrypt password hashing
+- ✅ Updated login to use credentials provider
+- ✅ Updated user profile API to use users table
+- ✅ Added custom password reset flow
+- ✅ Added Google OAuth buttons to login/signup pages
 
 ## ✅ Success Confirmation
 
@@ -80,52 +125,8 @@ The authentication system is now fully functional! Here's what's working:
 
 - **✅ User Registration**: Users can create accounts via `/signup`
 - **✅ User Login**: Users can sign in via `/login`
-- **✅ Session Management**: Sessions are properly managed with NextAuth
-- **✅ Protected Routes**: `/account` and `/copilot` require authentication
-- **✅ Error Handling**: Comprehensive error handling and user feedback
-- **✅ Modern UI/UX**: Beautiful, responsive design with animations
-
-### Test the System
-
-1. **Visit http://localhost:9002/signup** - Create a new account
-2. **Visit http://localhost:9002/login** - Sign in with existing account
-3. **Visit http://localhost:9002/account** - View your profile (requires auth)
-4. **Test logout** - Use the dropdown menu in the header
-
-## Troubleshooting
-
-### Common Issues
-
-1. **Environment Variables Not Loading**
-   - Ensure `.env.local` is in the root directory
-   - Restart the development server after adding variables
-   - Check that all required variables are present
-
-2. **Authentication Errors**
-   - Verify Supabase credentials are correct
-   - Check browser console for detailed error messages
-   - Ensure Supabase project is properly configured
-
-3. **TypeScript Errors**
-   - Run `npm run typecheck` to identify issues
-   - Most auth-related TypeScript errors have been resolved
-
-4. **Session Issues**
-   - Clear browser cookies and local storage
-   - Check that NEXTAUTH_SECRET is properly set
-   - Verify NEXTAUTH_URL matches your development URL
-
-### Testing
-
-- Visit `/login` to test the login page
-- Visit `/signup` to test the signup page
-- Visit `/account` to test protected routes (requires authentication)
-- Check browser console for any error messages
-
-### Error Handling
-
-The application includes comprehensive error handling:
-- Form validation with real-time feedback
-- Toast notifications for user feedback
-- Error boundaries for critical errors
-- Graceful fallbacks for authentication failures 
+- **✅ Google OAuth**: Users can sign in with Google
+- **✅ Password Reset**: Custom password reset flow
+- **✅ Session Management**: NextAuth.js handles sessions
+- **✅ Database Integration**: Supabase adapter syncs data
+- **✅ Protected Routes**: Authentication required for certain pages 

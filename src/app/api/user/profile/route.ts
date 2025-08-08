@@ -15,20 +15,25 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    // Fetch user data from Supabase Auth (not a separate users table)
-    const { data: authUser, error: authError } = await supabase.auth.admin.getUserById(session.user.id);
+    // Fetch user data from the users table
+    const { data: user, error } = await supabase
+      .from('users')
+      .select('id, email, name, emailVerified, createdAt')
+      .eq('id', session.user.id)
+      .single();
     
-    if (authError) {
-      console.error('Supabase auth error:', authError);
+    if (error || !user) {
+      console.error('User fetch error:', error);
       return NextResponse.json({ error: 'User not found' }, { status: 404 });
     }
 
-    // Extract user data from auth metadata
+    // Return user data
     const userData = {
-      id: authUser.user.id,
-      email: authUser.user.email || '',
-      full_name: authUser.user.user_metadata?.full_name || authUser.user.user_metadata?.name || null,
-      created_at: authUser.user.created_at
+      id: user.id,
+      email: user.email,
+      name: user.name,
+      emailVerified: user.emailVerified,
+      createdAt: user.createdAt
     };
 
     return NextResponse.json(userData);

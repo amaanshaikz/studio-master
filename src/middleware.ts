@@ -4,13 +4,15 @@ import { auth } from "@/lib/auth"
 export default auth((req) => {
   const isLoggedIn = !!req.auth
   
-  // Protect account and copilot routes
+  // Protect account, copilot, setup, and profile routes
   if (req.nextUrl.pathname.startsWith('/account') || 
-      req.nextUrl.pathname.startsWith('/copilot')) {
+      req.nextUrl.pathname.startsWith('/copilot') ||
+      req.nextUrl.pathname.startsWith('/setup') ||
+      req.nextUrl.pathname.startsWith('/profile')) {
     
     if (!isLoggedIn) {
       const url = new URL('/login', req.url)
-      url.searchParams.set('callbackUrl', '/copilot')
+      url.searchParams.set('callbackUrl', '/setup')
       return NextResponse.redirect(url)
     }
   }
@@ -19,5 +21,5 @@ export default auth((req) => {
 })
 
 export const config = {
-  matcher: ["/account/:path*", "/copilot/:path*"]
+  matcher: ["/account/:path*", "/copilot/:path*", "/setup/:path*", "/profile/:path*"]
 } 

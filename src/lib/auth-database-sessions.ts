@@ -3,13 +3,11 @@ import GoogleProvider from "next-auth/providers/google"
 import CredentialsProvider from "next-auth/providers/credentials"
 import { SupabaseAdapter } from "@auth/supabase-adapter"
 import { createClient } from '@supabase/supabase-js'
-import * as bcrypt from 'bcryptjs'
+import bcrypt from 'bcryptjs'
 
 // Check if required environment variables are present
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
 const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY
-const googleClientId = process.env.GOOGLE_CLIENT_ID
-const googleClientSecret = process.env.GOOGLE_CLIENT_SECRET
 
 if (!supabaseUrl || !supabaseServiceKey) {
   throw new Error(
@@ -22,8 +20,8 @@ const supabase = createClient(supabaseUrl, supabaseServiceKey)
 export const { handlers, auth, signIn, signOut } = NextAuth({
   providers: [
     GoogleProvider({
-      clientId: googleClientId!,
-      clientSecret: googleClientSecret!,
+      clientId: process.env.GOOGLE_CLIENT_ID!,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
     }),
     CredentialsProvider({
       name: "credentials",
@@ -49,14 +47,8 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
             return null
           }
 
-          // Verify password using bcrypt
-          const hashedPassword = user.password as string
-          if (!hashedPassword) {
-            console.error("User has no valid password")
-            return null
-          }
-
-          const isValidPassword = await bcrypt.compare(credentials.password, hashedPassword)
+          // Verify password
+          const isValidPassword = await bcrypt.compare(credentials.password, user.password || '')
 
           if (!isValidPassword) {
             console.error("Invalid password")
@@ -80,19 +72,13 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     secret: process.env.SUPABASE_SERVICE_ROLE_KEY!,
   }),
   session: {
-    strategy: "jwt",
+    strategy: "database", // Changed from "jwt" to "database"
     maxAge: 30 * 24 * 60 * 60, // 30 days
   },
   callbacks: {
-    async jwt({ token, user, account }) {
+    async session({ session, user }) {
       if (user) {
-        token.id = user.id
-      }
-      return token
-    },
-    async session({ session, token }) {
-      if (token) {
-        session.user.id = token.id as string
+        session.user.id = user.id
       }
       return session
     },
@@ -103,4 +89,4 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
   debug: process.env.NODE_ENV === 'development',
   secret: process.env.NEXTAUTH_SECRET,
   trustHost: true,
-}) 
+})

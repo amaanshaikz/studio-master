@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
+import bcrypt from 'bcryptjs';
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
@@ -22,15 +23,34 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Create user in Supabase
-    const { data, error } = await supabase.auth.admin.createUser({
-      email,
-      password,
-      email_confirm: true,
-      user_metadata: {
-        full_name: fullName,
-      },
-    });
+    // Check if user already exists
+    const { data: existingUser } = await supabase
+      .from('users')
+      .select('id')
+      .eq('email', email)
+      .single();
+
+    if (existingUser) {
+      return NextResponse.json(
+        { error: 'User with this email already exists' },
+        { status: 400 }
+      );
+    }
+
+    // Hash password
+    const hashedPassword = await bcrypt.hash(password, 12);
+
+    // Create user in the users table with lowercase column names
+    const { data: user, error } = await supabase
+      .from('users')
+      .insert({
+        email,
+        password: hashedPassword,
+        name: fullName,
+        emailverified: new Date().toISOString(), // Use lowercase
+      })
+      .select()
+      .single();
 
     if (error) {
       console.error('Supabase registration error:', error);
@@ -40,15 +60,15 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    if (data.user) {
+    if (user) {
       return NextResponse.json(
         { 
           success: true, 
           message: 'User created successfully',
           user: {
-            id: data.user.id,
-            email: data.user.email,
-            name: fullName,
+            id: user.id,
+            email: user.email,
+            name: user.name,
           }
         },
         { status: 201 }

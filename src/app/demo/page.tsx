@@ -1,7 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import { useState, useRef, useEffect, useCallback, useContext } from 'react';
+import { useState, useRef, useEffect, useCallback, useContext, Suspense } from 'react';
 import { Button } from '@/components/ui/button';
 import { FileText, Mic, Hash, CornerDownLeft, Loader2, Sparkles, Settings2, X, Copy, Bot, User, BrainCircuit, Send, Paperclip, FileCheck2, MessageSquare, Image as ImageIcon, Lightbulb, ChevronDown } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -22,6 +22,7 @@ import { Switch } from '@/components/ui/switch';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import Image from 'next/image';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
+import { TypingAnimation } from '@/components/ui/typing-animation';
 import PlatformConnectionOverlay from '@/components/platforms/PlatformConnectionOverlay';
 import { useSearchParams, useRouter } from 'next/navigation';
 
@@ -78,7 +79,8 @@ const messageToHistoryItem = (msg: Message) => {
     return { role: msg.role, content };
 };
 
-export default function DemoPage() {
+// Separate component that uses useSearchParams
+function DemoPageContent() {
     const [activeTool, setActiveTool] = useState<Tool>('chat');
     const [messages, setMessages] = useState<Message[]>([]);
     const [isLoading, setIsLoading] = useState(false);
@@ -287,13 +289,13 @@ Ready to create some amazing content together? I'm here to help you shine even b
         }
 
         if (responseText) {
-             return <p className="whitespace-pre-wrap">{responseText}</p>
+             return <TypingAnimation text={responseText} speed={15} className="whitespace-pre-wrap" />
         }
        
         if (content.text) {
             return (
                 <div className="flex flex-col gap-2">
-                  <p className="whitespace-pre-wrap">{content.text}</p>
+                  <div className="whitespace-pre-wrap">{content.text}</div>
                   {content.documentName && content.documentContent && (
                     <div className="flex items-center gap-2 text-xs text-accent-foreground/80 bg-accent/30 rounded-md p-2 border border-accent/50 w-fit">
                       {content.documentContent.startsWith('data:image/') ? (
@@ -493,5 +495,25 @@ Ready to create some amazing content together? I'm here to help you shine even b
             </div>
         </FormProvider>
         </CopilotContext.Provider>
+    );
+}
+
+// Main component with Suspense boundary
+export default function DemoPage() {
+    return (
+        <Suspense fallback={
+            <div className="flex-1 grid grid-cols-1 lg:grid-cols-3 gap-8 container mx-auto px-4 py-8 md:py-12 bg-black min-h-screen">
+                <div className="lg:col-span-3">
+                    <div className="flex items-center justify-center h-[calc(100vh-theme(height.14)-100px)]">
+                        <div className="flex flex-col items-center gap-4">
+                            <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                            <p className="text-muted-foreground">Loading demo...</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }>
+            <DemoPageContent />
+        </Suspense>
     );
 } 

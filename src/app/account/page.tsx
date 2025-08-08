@@ -23,8 +23,7 @@ import {
   TrendingUp,
   Activity,
   Zap,
-  ArrowRight,
-  Trash2
+  ArrowRight
 } from 'lucide-react';
 import { signOut } from 'next-auth/react';
 import PlatformIntegration from '@/components/platforms/PlatformIntegration';
@@ -198,18 +197,23 @@ export default function AccountPage() {
                     </div>
                   </div>
                   <div className="flex gap-3">
-                    <Button variant="outline" size="sm" className="border-primary/50 text-primary hover:bg-primary/10">
-                      <Settings className="w-4 h-4 mr-2" />
-                      Edit Profile
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      className="border-primary/50 text-primary hover:bg-primary/10"
+                      onClick={() => router.push('/profile')}
+                    >
+                      <User className="w-4 h-4 mr-2" />
+                      View Profile
                     </Button>
                     <Button 
                       variant="outline" 
                       size="sm" 
-                      className="border-red-600/50 text-red-400 hover:bg-red-900/20 hover:border-red-500"
-                      onClick={() => window.open('/privacy#data-deletion', '_blank')}
+                      className="border-green-600/50 text-green-400 hover:bg-green-900/20 hover:border-green-500"
+                      onClick={() => router.push('/setup')}
                     >
-                      <Trash2 className="w-4 h-4 mr-2" />
-                      Delete Data
+                      <Settings className="w-4 h-4 mr-2" />
+                      Setup Profile
                     </Button>
                   </div>
                 </CardContent>
