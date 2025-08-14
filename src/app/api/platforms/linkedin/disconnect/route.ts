@@ -1,8 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
-
-// Mock data storage - replace with your database
-const platformDataStore = new Map();
+import { PlatformDatabase } from '@/lib/platform-database';
 
 export async function POST(request: NextRequest) {
   try {
@@ -13,8 +11,10 @@ export async function POST(request: NextRequest) {
 
     const userId = session.user.id;
     
-    // Remove LinkedIn data from storage
-    platformDataStore.delete(`${userId}_linkedin`);
+    // Disconnect LinkedIn platform
+    await PlatformDatabase.disconnectPlatform(userId, 'linkedin');
+
+    console.log('LinkedIn disconnected for user:', userId);
 
     return NextResponse.json({ 
       success: true, 

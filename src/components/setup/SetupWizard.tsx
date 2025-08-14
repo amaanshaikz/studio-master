@@ -5,56 +5,21 @@ import { useRouter } from 'next/navigation';
 import { useSession } from 'next-auth/react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Checkbox } from '@/components/ui/checkbox';
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { useToast } from '@/hooks/use-toast';
 import { 
   User, 
-  Brain, 
-  Briefcase, 
+  Video, 
+  TrendingUp, 
   ArrowRight, 
   ArrowLeft, 
   CheckCircle,
-  Loader2,
-  X
+  Loader2
 } from 'lucide-react';
-import BasicInformationStep from './BasicInformationStep';
-import PersonalInsightsStep from './PersonalInsightsStep';
-import ProfessionalProfileStep from './ProfessionalProfileStep';
-
-interface ProfileData {
-  // Basic Information
-  full_name?: string;
-  nickname?: string;
-  age?: number;
-  pronouns?: string;
-  location?: string;
-  timezone?: string;
-  languages?: string[];
-  communication_style?: string;
-  
-  // Personal Insights
-  focus_improvement?: string;
-  motivation?: string;
-  personality_type?: string;
-  productive_time?: string;
-  productivity_systems?: string[];
-  ai_boundaries?: string;
-  
-  // Professional Profile
-  profession?: string;
-  career_study_goals?: string[];
-  career_study_goals_notes?: string;
-  tools_used?: string[];
-  work_challenges?: string;
-  ai_support_preference?: string[];
-}
+import CreatorProfileStep from './CreatorProfileStep';
+import ContentStyleStep from './ContentStyleStep';
+import GrowthMonetizationStep from './GrowthMonetizationStep';
+import { CreatorData } from '@/types/creator';
 
 const SetupWizard = () => {
   const { data: session, status } = useSession();
@@ -64,28 +29,31 @@ const SetupWizard = () => {
   const [currentStep, setCurrentStep] = useState(1);
   const [isLoading, setIsLoading] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
-  const [profileData, setProfileData] = useState<ProfileData>({});
-  const [tempData, setTempData] = useState<ProfileData>({});
-  const [isEditing, setIsEditing] = useState(false);
+  const [creatorData, setCreatorData] = useState<CreatorData>({});
+  const [tempData, setTempData] = useState<CreatorData>({});
   const [isEditMode, setIsEditMode] = useState(false);
 
   const totalSteps = 3;
   const progress = (currentStep / totalSteps) * 100;
 
-  // Load existing profile data
+  // Load existing creator data
   useEffect(() => {
     if (status === 'authenticated' && session?.user?.id) {
-      loadProfileData();
+      loadCreatorData();
     }
   }, [session, status]);
 
-  const loadProfileData = async () => {
+  const loadCreatorData = async () => {
     try {
-      const response = await fetch('/api/user/profile/setup');
+      console.log('Loading creator data for user:', session?.user?.id);
+      const response = await fetch('/api/user/creators/setup');
+      
       if (response.ok) {
         const data = await response.json();
+        console.log('Loaded creator data:', data);
+        
         if (data.id) {
-          setProfileData(data);
+          setCreatorData(data);
           setTempData(data);
           // Check if we're in edit mode (setup is complete)
           if (data.is_setup_complete) {
@@ -95,17 +63,36 @@ const SetupWizard = () => {
           if (data.current_step) {
             setCurrentStep(data.current_step);
           }
+        } else {
+          // New user, initialize with user_id
+          setCreatorData({ user_id: session?.user?.id });
+          setTempData({ user_id: session?.user?.id });
         }
+      } else {
+        const errorData = await response.json();
+        console.error('Failed to load creator data:', errorData);
+        toast({
+          title: "Error",
+          description: "Failed to load your profile data. Please refresh the page.",
+          variant: "destructive",
+        });
       }
     } catch (error) {
-      console.error('Error loading profile data:', error);
+      console.error('Error loading creator data:', error);
+      toast({
+        title: "Error",
+        description: "Failed to load your profile data. Please refresh the page.",
+        variant: "destructive",
+      });
     }
   };
 
   const saveStep = async (step: number, isComplete = false) => {
     setIsSaving(true);
     try {
-      const response = await fetch('/api/user/profile/setup', {
+      console.log('Saving step:', step, 'isComplete:', isComplete, 'data:', tempData);
+      
+      const response = await fetch('/api/user/creators/setup', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -117,13 +104,15 @@ const SetupWizard = () => {
 
       if (response.ok) {
         const result = await response.json();
-        setProfileData(result.profile);
-        setTempData(result.profile);
+        console.log('Save result:', result);
+        
+        setCreatorData(result.creator);
+        setTempData(result.creator);
         
         if (isComplete) {
           toast({
             title: "Setup Complete!",
-            description: "Your profile has been saved successfully.",
+            description: "Your creator profile has been saved successfully.",
           });
           router.push('/profile');
         } else {
@@ -133,12 +122,15 @@ const SetupWizard = () => {
           });
         }
       } else {
-        throw new Error('Failed to save');
+        const errorData = await response.json();
+        console.error('Save error:', errorData);
+        throw new Error(errorData.error || 'Failed to save');
       }
     } catch (error) {
+      console.error('Save error:', error);
       toast({
         title: "Error",
-        description: "Failed to save your progress. Please try again.",
+        description: error instanceof Error ? error.message : "Failed to save your progress. Please try again.",
         variant: "destructive",
       });
     } finally {
@@ -165,8 +157,34 @@ const SetupWizard = () => {
     await saveStep(currentStep, true);
   };
 
-  const updateTempData = (field: keyof ProfileData, value: any) => {
+  const updateTempData = (field: keyof CreatorData, value: any) => {
     setTempData(prev => ({ ...prev, [field]: value }));
+  };
+
+  const getStepTitle = (step: number) => {
+    switch (step) {
+      case 1:
+        return "Creator Profile & Brand";
+      case 2:
+        return "Content Style & Creative Direction";
+      case 3:
+        return "Growth, Monetization & AI Personalization";
+      default:
+        return "";
+    }
+  };
+
+  const getStepIcon = (step: number) => {
+    switch (step) {
+      case 1:
+        return <User className="w-6 h-6 text-white" />;
+      case 2:
+        return <Video className="w-6 h-6 text-white" />;
+      case 3:
+        return <TrendingUp className="w-6 h-6 text-white" />;
+      default:
+        return <User className="w-6 h-6 text-white" />;
+    }
   };
 
   if (status === 'loading') {
@@ -193,7 +211,7 @@ const SetupWizard = () => {
       
       {/* Content */}
       <div className="relative z-10 flex items-center justify-center min-h-screen p-4">
-        <div className="w-full max-w-2xl">
+        <div className="w-full max-w-4xl">
           <Card className="shadow-2xl border-border/40 bg-card/80 backdrop-blur-sm">
             <CardHeader className="text-center space-y-6">
               <div className="flex items-center justify-center space-x-4">
@@ -205,21 +223,21 @@ const SetupWizard = () => {
                 <div className={`w-12 h-12 rounded-full flex items-center justify-center ${
                   currentStep >= 2 ? 'bg-yellow-500' : 'bg-gray-600'
                 }`}>
-                  <Brain className="w-6 h-6 text-white" />
+                  <Video className="w-6 h-6 text-white" />
                 </div>
                 <div className={`w-12 h-12 rounded-full flex items-center justify-center ${
                   currentStep >= 3 ? 'bg-blue-500' : 'bg-gray-600'
                 }`}>
-                  <Briefcase className="w-6 h-6 text-white" />
+                  <TrendingUp className="w-6 h-6 text-white" />
                 </div>
               </div>
               
               <div>
                 <CardTitle className="text-2xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
-                  {isEditMode ? "Edit Profile" : "Setup Profile"}
+                  {isEditMode ? "Edit Creator Profile" : "Creator Profile Setup"}
                 </CardTitle>
                 <p className="text-muted-foreground mt-2">
-                  {isEditMode ? "Update your profile information" : `Step ${currentStep} of ${totalSteps}`}
+                  {isEditMode ? "Update your creator profile information" : `Step ${currentStep} of ${totalSteps}: ${getStepTitle(currentStep)}`}
                 </p>
               </div>
               
@@ -228,21 +246,21 @@ const SetupWizard = () => {
             
             <CardContent className="space-y-6">
               {currentStep === 1 && (
-                <BasicInformationStep 
+                <CreatorProfileStep 
                   data={tempData} 
                   updateData={updateTempData} 
                 />
               )}
               
               {currentStep === 2 && (
-                <PersonalInsightsStep 
+                <ContentStyleStep 
                   data={tempData} 
                   updateData={updateTempData} 
                 />
               )}
               
               {currentStep === 3 && (
-                <ProfessionalProfileStep 
+                <GrowthMonetizationStep 
                   data={tempData} 
                   updateData={updateTempData} 
                 />

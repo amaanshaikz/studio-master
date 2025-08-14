@@ -1,0 +1,185 @@
+# =============================================================================
+# CREATE-X AI - Environment Variables Template
+# =============================================================================
+# Copy this file to .env.local and fill in your actual values
+# =============================================================================
+
+# =============================================================================
+# SUPABASE CONFIGURATION
+# =============================================================================
+# Get these from your Supabase project dashboard
+NEXT_PUBLIC_SUPABASE_URL=https://your-project-id.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key_here
+SUPABASE_SERVICE_ROLE_KEY=your_supabase_service_role_key_here
+
+# =============================================================================
+# NEXTAUTH CONFIGURATION
+# =============================================================================
+# Generate a random secret: openssl rand -base64 32
+NEXTAUTH_SECRET=your_nextauth_secret_here
+NEXTAUTH_URL=http://localhost:9002
+
+# =============================================================================
+# AI BACKEND CONFIGURATION
+# =============================================================================
+# Development AI backend choice: 'vertex' or 'gemini' (default: 'gemini')
+DEV_AI_BACKEND=vertex
+
+# =============================================================================
+# GOOGLE CLOUD / VERTEX AI CONFIGURATION
+# =============================================================================
+# Only required if using Vertex AI in development
+GCP_PROJECT_ID=your_gcp_project_id
+GCP_LOCATION=us-central1
+
+# =============================================================================
+# GOOGLE AI / GEMINI API CONFIGURATION
+# =============================================================================
+# Get from Google AI Studio: https://makersuite.google.com/app/apikey
+GOOGLE_AI_API_KEY=your_gemini_api_key_here
+
+# =============================================================================
+# INSTAGRAM GRAPH API CONFIGURATION
+# =============================================================================
+# Get from Facebook Developers: https://developers.facebook.com/
+NEXT_PUBLIC_INSTAGRAM_CLIENT_ID=your_instagram_client_id_here
+INSTAGRAM_CLIENT_SECRET=your_instagram_client_secret_here
+
+# Webhook configuration (optional but recommended)
+INSTAGRAM_WEBHOOK_VERIFY_TOKEN=your_custom_webhook_verify_token_here
+INSTAGRAM_WEBHOOK_SECRET=your_webhook_secret_here
+
+# =============================================================================
+# LINKEDIN API CONFIGURATION
+# =============================================================================
+# Get from LinkedIn Developers: https://www.linkedin.com/developers/
+NEXT_PUBLIC_LINKEDIN_CLIENT_ID=your_linkedin_client_id_here
+LINKEDIN_CLIENT_SECRET=your_linkedin_client_secret_here
+
+# Webhook configuration (optional but recommended)
+LINKEDIN_WEBHOOK_VERIFY_TOKEN=your_custom_webhook_verify_token_here
+LINKEDIN_WEBHOOK_SECRET=your_webhook_secret_here
+
+# =============================================================================
+# SECURITY CONFIGURATION
+# =============================================================================
+# Generate a 32-character encryption key: openssl rand -hex 16
+ENCRYPTION_KEY=your_32_character_encryption_key_here
+
+# =============================================================================
+# APPLICATION CONFIGURATION
+# =============================================================================
+# Environment: 'development' or 'production'
+NODE_ENV=development
+
+# =============================================================================
+# OPTIONAL CONFIGURATION
+# =============================================================================
+# Creator profile cache TTL in seconds (default: 300 = 5 minutes)
+CREATOR_PROFILE_CACHE_TTL=300
+
+# =============================================================================
+# SETUP INSTRUCTIONS
+# =============================================================================
+
+# 1. SUPABASE SETUP:
+#    - Go to https://supabase.com/
+#    - Create a new project
+#    - Copy the URL and anon key from Settings > API
+#    - Copy the service role key from Settings > API (keep this secret!)
+
+# 2. NEXTAUTH SETUP:
+#    - Generate a secret: openssl rand -base64 32
+#    - Set NEXTAUTH_URL to your domain (http://localhost:9002 for development)
+
+# 3. GOOGLE AI SETUP:
+#    - Go to https://makersuite.google.com/app/apikey
+#    - Create an API key for Gemini API
+
+# 4. VERTEX AI SETUP (Optional):
+#    - Go to https://console.cloud.google.com/
+#    - Create a project and enable Vertex AI API
+#    - Set up billing (required for Vertex AI)
+#    - Run: gcloud auth application-default login
+#    - Run: gcloud services enable aiplatform.googleapis.com
+
+# 5. INSTAGRAM SETUP:
+#    - Go to https://developers.facebook.com/
+#    - Create a new app
+#    - Add Instagram Basic Display product
+#    - Configure OAuth redirect URIs:
+#      * http://localhost:9002/api/auth/callback/instagram
+#      * https://yourdomain.com/api/auth/callback/instagram
+#    - Set webhook URLs (optional):
+#      * https://yourdomain.com/api/webhooks/instagram
+
+# 6. LINKEDIN SETUP:
+#    - Go to https://www.linkedin.com/developers/
+#    - Create a new app
+#    - Configure OAuth redirect URIs:
+#      * http://localhost:9002/api/auth/callback/linkedin
+#      * https://yourdomain.com/api/auth/callback/linkedin
+#    - Set webhook URLs (optional):
+#      * https://yourdomain.com/api/webhooks/linkedin
+
+# 7. SECURITY SETUP:
+#    - Generate encryption key: openssl rand -hex 16
+#    - Generate webhook verify tokens (any random strings)
+#    - Keep all secrets secure and never commit them to version control
+
+# =============================================================================
+# DATABASE MIGRATION
+# =============================================================================
+# After setting up environment variables, run these SQL migrations in Supabase:
+# 1. supabase-migration.sql (users table)
+# 2. supabase-creators-migration.sql (creators table)
+# 3. supabase-platform-integrations-migration.sql (platform tables)
+
+# =============================================================================
+# TESTING
+# =============================================================================
+# Test the integrations:
+# 1. Run: npm run dev
+# 2. Visit: http://localhost:9002
+# 3. Test platform connections in the account page
+# 4. Test AI features in the copilot page
+# 5. Run: node test-platform-integrations.js (for API testing)
+
+# =============================================================================
+# PRODUCTION DEPLOYMENT
+# =============================================================================
+# For production deployment:
+# 1. Set NODE_ENV=production
+# 2. Update all URLs to your production domain
+# 3. Set up proper SSL certificates
+# 4. Configure production database
+# 5. Set up monitoring and logging
+# 6. Test all integrations thoroughly
+
+# =============================================================================
+# SECURITY CHECKLIST
+# =============================================================================
+# ✅ All secrets are properly set
+# ✅ ENCRYPTION_KEY is 32 characters
+# ✅ NEXTAUTH_SECRET is secure
+# ✅ Service role keys are kept secret
+# ✅ Webhook secrets are configured
+# ✅ Environment variables are not committed to git
+# ✅ Production URLs are HTTPS
+# ✅ Database RLS policies are enabled
+# ✅ Token encryption is working
+# ✅ Webhook signature verification is enabled
+
+# =============================================================================
+# TROUBLESHOOTING
+# =============================================================================
+# Common issues:
+# 1. "Instagram Client ID not configured" - Check NEXT_PUBLIC_INSTAGRAM_CLIENT_ID
+# 2. "LinkedIn Client ID not configured" - Check NEXT_PUBLIC_LINKEDIN_CLIENT_ID
+# 3. "Supabase connection failed" - Check Supabase URL and keys
+# 4. "AI generation failed" - Check Google AI API key or Vertex AI setup
+# 5. "Webhook verification failed" - Check webhook tokens and secrets
+# 6. "Token encryption failed" - Check ENCRYPTION_KEY length
+
+# For detailed logs, check the browser console and server logs.
+# =============================================================================
