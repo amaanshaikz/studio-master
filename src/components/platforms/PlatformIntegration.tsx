@@ -327,19 +327,19 @@ export default function PlatformIntegration() {
       <CardContent className="space-y-6 pt-6">
         {/* Instagram Integration */}
         <div className="space-y-4">
-          <div className="flex items-center justify-between p-4 bg-gray-800/30 rounded-lg border border-gray-700">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 p-4 bg-gray-800/30 rounded-lg border border-gray-700">
             <div className="flex items-center gap-3">
               <div className="p-2 bg-gradient-to-br from-pink-600/20 to-purple-600/20 rounded-lg border border-pink-600/30">
                 <Instagram className="w-5 h-5 text-pink-400" />
               </div>
-              <div>
+              <div className="min-w-0 flex-1">
                 <h3 className="font-medium text-white">Instagram</h3>
                 <p className="text-sm text-gray-400">
                   Connect to access your posts, reels, and insights
                 </p>
               </div>
             </div>
-            <div className="flex items-center gap-2">
+            <div className="flex flex-wrap items-center gap-2">
               {instagramData.connected ? (
                 <>
                   <Badge variant="outline" className="text-green-400 border-green-600 bg-green-900/20">
@@ -369,7 +369,7 @@ export default function PlatformIntegration() {
                 <Button 
                   onClick={connectInstagram} 
                   disabled={isLoading}
-                  className="bg-gradient-to-r from-pink-600 to-purple-600 hover:from-pink-700 hover:to-purple-700 border-0"
+                  className="bg-gradient-to-r from-pink-600 to-purple-600 hover:from-pink-700 hover:to-purple-700 border-0 w-full sm:w-auto"
                 >
                   <Instagram className="w-4 h-4 mr-2" />
                   Connect Instagram
@@ -389,19 +389,19 @@ export default function PlatformIntegration() {
 
         {/* LinkedIn Integration */}
         <div className="space-y-4">
-          <div className="flex items-center justify-between p-4 bg-gray-800/30 rounded-lg border border-gray-700">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 p-4 bg-gray-800/30 rounded-lg border border-gray-700">
             <div className="flex items-center gap-3">
               <div className="p-2 bg-gradient-to-br from-blue-600/20 to-blue-700/20 rounded-lg border border-blue-600/30">
                 <Linkedin className="w-5 h-5 text-blue-400" />
               </div>
-              <div>
+              <div className="min-w-0 flex-1">
                 <h3 className="font-medium text-white">LinkedIn</h3>
                 <p className="text-sm text-gray-400">
                   Connect to access your profile and network data
                 </p>
               </div>
             </div>
-            <div className="flex items-center gap-2">
+            <div className="flex flex-wrap items-center gap-2">
               {linkedinData.connected ? (
                 <>
                   <Badge variant="outline" className="text-green-400 border-green-600 bg-green-900/20">
@@ -431,7 +431,7 @@ export default function PlatformIntegration() {
                 <Button 
                   onClick={connectLinkedIn} 
                   disabled={isLoading}
-                  className="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 border-0"
+                  className="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 border-0 w-full sm:w-auto"
                 >
                   <Linkedin className="w-4 h-4 mr-2" />
                   Connect LinkedIn

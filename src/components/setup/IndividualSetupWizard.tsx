@@ -71,36 +71,54 @@ const IndividualSetupWizard = () => {
   }, [session, status]);
 
   const loadProfileData = async () => {
-    setIsLoading(true);
     try {
+      console.log('Loading individual profile data for user:', session?.user?.id);
       const response = await fetch('/api/user/profile/setup');
+      
       if (response.ok) {
         const data = await response.json();
-        setProfileData(data);
-        setTempData(data);
-        if (data.is_setup_complete) {
-          setIsEditMode(true);
+        console.log('Loaded individual profile data:', data);
+        
+        if (data.id) {
+          setProfileData(data);
+          setTempData(data);
+          // Check if we're in edit mode (setup is complete)
+          if (data.is_setup_complete) {
+            setIsEditMode(true);
+          }
+          // If setup is complete, we still allow editing by staying on setup page
+          if (data.current_step) {
+            setCurrentStep(data.current_step);
+          }
+        } else {
+          // New user, initialize with user_id
+          setProfileData({ user_id: session?.user?.id });
+          setTempData({ user_id: session?.user?.id });
         }
-      } else if (response.status === 404) {
-        // No profile exists yet, start fresh
-        setProfileData({});
-        setTempData({});
+      } else {
+        const errorData = await response.json();
+        console.error('Failed to load individual profile data:', errorData);
+        toast({
+          title: "Error",
+          description: "Failed to load your profile data. Please refresh the page.",
+          variant: "destructive",
+        });
       }
     } catch (error) {
-      console.error('Error loading profile data:', error);
+      console.error('Error loading individual profile data:', error);
       toast({
         title: "Error",
-        description: "Failed to load profile data. Please try again.",
+        description: "Failed to load your profile data. Please refresh the page.",
         variant: "destructive",
       });
-    } finally {
-      setIsLoading(false);
     }
   };
 
   const saveStep = async (step: number, isComplete = false) => {
     setIsSaving(true);
     try {
+      console.log('Saving step:', step, 'isComplete:', isComplete, 'data:', tempData);
+      
       const response = await fetch('/api/user/profile/setup', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -113,6 +131,8 @@ const IndividualSetupWizard = () => {
 
       if (response.ok) {
         const result = await response.json();
+        console.log('Save result:', result);
+        
         setProfileData(result.profile);
         setTempData(result.profile);
         
@@ -130,6 +150,7 @@ const IndividualSetupWizard = () => {
         }
       } else {
         const errorData = await response.json();
+        console.error('Save error:', errorData);
         throw new Error(errorData.error || 'Failed to save');
       }
     } catch (error) {
@@ -169,51 +190,31 @@ const IndividualSetupWizard = () => {
 
   const getStepTitle = (step: number) => {
     switch (step) {
-      case 1: return 'Basic Information';
-      case 2: return 'Personal Insights';
-      case 3: return 'Professional Profile';
-      default: return 'Step';
+      case 1:
+        return "Basic Information";
+      case 2:
+        return "Personal Insights";
+      case 3:
+        return "Professional Profile";
+      default:
+        return "";
     }
   };
 
   const getStepIcon = (step: number) => {
     switch (step) {
-      case 1: return <User className="w-5 h-5" />;
-      case 2: return <Brain className="w-5 h-5" />;
-      case 3: return <Briefcase className="w-5 h-5" />;
-      default: return <User className="w-5 h-5" />;
-    }
-  };
-
-  const renderCurrentStep = () => {
-    switch (currentStep) {
       case 1:
-        return (
-          <BasicInformationStep
-            data={tempData}
-            updateData={updateTempData}
-          />
-        );
+        return <User className="w-6 h-6 text-white" />;
       case 2:
-        return (
-          <PersonalInsightsStep
-            data={tempData}
-            updateData={updateTempData}
-          />
-        );
+        return <Brain className="w-6 h-6 text-white" />;
       case 3:
-        return (
-          <ProfessionalProfileStep
-            data={tempData}
-            updateData={updateTempData}
-          />
-        );
+        return <Briefcase className="w-6 h-6 text-white" />;
       default:
-        return null;
+        return <User className="w-6 h-6 text-white" />;
     }
   };
 
-  if (isLoading) {
+  if (status === 'loading') {
     return (
       <div className="min-h-screen bg-black flex items-center justify-center">
         <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary"></div>
@@ -221,129 +222,117 @@ const IndividualSetupWizard = () => {
     );
   }
 
+  if (status === 'unauthenticated') {
+    router.push('/login');
+    return null;
+  }
+
   return (
-    <div className="min-h-screen bg-black relative overflow-hidden">
-      {/* Background Pattern */}
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(120,119,198,0.1),transparent_50%)]"></div>
+    <div className="min-h-screen bg-black relative">
+      {/* Stars Background */}
+      <div className="stars-container">
+        <div id="stars"></div>
+        <div id="stars2"></div>
+        <div id="stars3"></div>
+      </div>
       
-      <div className="relative z-10 container mx-auto px-4 py-12">
-        <div className="max-w-4xl mx-auto">
-          {/* Header */}
-          <div className="text-center mb-12">
-            <div className="flex items-center justify-center gap-3 mb-6">
-              <div className="p-3 rounded-full bg-gradient-to-r from-green-600 to-green-400">
-                <User className="w-6 h-6 text-white" />
-              </div>
-              <h1 className="text-4xl font-bold text-white">
-                {isEditMode ? 'Edit Individual Profile' : 'Individual Profile Setup'}
-              </h1>
-            </div>
-            <p className="text-lg text-gray-400 max-w-2xl mx-auto">
-              {isEditMode 
-                ? 'Update your personal and professional information'
-                : 'Let\'s personalize your CreateX AI experience for individual use'
-              }
-            </p>
-          </div>
-
-          {/* Progress Bar */}
-          <div className="mb-8">
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-sm text-gray-400">
-                Step {currentStep} of {totalSteps}
-              </span>
-              <span className="text-sm text-gray-400">
-                {Math.round(progress)}% Complete
-              </span>
-            </div>
-            <Progress value={progress} className="h-2" />
-          </div>
-
-          {/* Step Indicator */}
-          <div className="flex justify-center mb-8">
-            <div className="flex space-x-4">
-              {[1, 2, 3].map((step) => (
-                <div
-                  key={step}
-                  className={`flex items-center space-x-2 px-4 py-2 rounded-lg transition-colors ${
-                    step === currentStep
-                      ? 'bg-primary text-white'
-                      : step < currentStep
-                      ? 'bg-green-600 text-white'
-                      : 'bg-gray-800 text-gray-400'
-                  }`}
-                >
-                  {step < currentStep ? (
-                    <CheckCircle className="w-4 h-4" />
-                  ) : (
-                    getStepIcon(step)
-                  )}
-                  <span className="text-sm font-medium">{getStepTitle(step)}</span>
+      {/* Content */}
+      <div className="relative z-10 flex items-center justify-center min-h-screen p-4">
+        <div className="w-full max-w-4xl">
+          <Card className="shadow-2xl border-border/40 bg-card/80 backdrop-blur-sm">
+            <CardHeader className="text-center space-y-6">
+              <div className="flex items-center justify-center space-x-4">
+                <div className={`w-12 h-12 rounded-full flex items-center justify-center ${
+                  currentStep >= 1 ? 'bg-green-500' : 'bg-gray-600'
+                }`}>
+                  <User className="w-6 h-6 text-white" />
                 </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Main Content */}
-          <Card className="border border-gray-800 bg-gray-900/50 backdrop-blur-sm">
-            <CardHeader className="border-b border-gray-800">
-              <CardTitle className="flex items-center gap-3 text-xl text-white">
-                {getStepIcon(currentStep)}
-                {getStepTitle(currentStep)}
-              </CardTitle>
+                <div className={`w-12 h-12 rounded-full flex items-center justify-center ${
+                  currentStep >= 2 ? 'bg-yellow-500' : 'bg-gray-600'
+                }`}>
+                  <Brain className="w-6 h-6 text-white" />
+                </div>
+                <div className={`w-12 h-12 rounded-full flex items-center justify-center ${
+                  currentStep >= 3 ? 'bg-blue-500' : 'bg-gray-600'
+                }`}>
+                  <Briefcase className="w-6 h-6 text-white" />
+                </div>
+              </div>
+              
+              <div>
+                <CardTitle className="text-2xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
+                  {isEditMode ? "Edit Individual Profile" : "Individual Profile Setup"}
+                </CardTitle>
+                <p className="text-muted-foreground mt-2">
+                  {isEditMode ? "Update your individual profile information" : `Step ${currentStep} of ${totalSteps}: ${getStepTitle(currentStep)}`}
+                </p>
+              </div>
+              
+              <Progress value={progress} className="w-full" />
             </CardHeader>
-            <CardContent className="p-8">
-              {renderCurrentStep()}
-            </CardContent>
-          </Card>
-
-          {/* Navigation */}
-          <div className="flex justify-between items-center mt-8">
-            <Button
-              variant="outline"
-              onClick={handleBack}
-              disabled={currentStep === 1}
-              className="border-gray-700 text-gray-300 hover:bg-gray-800"
-            >
-              <ArrowLeft className="w-4 h-4 mr-2" />
-              Back
-            </Button>
-
-            <div className="flex gap-3">
-              {currentStep < totalSteps && (
-                <Button
-                  variant="outline"
-                  onClick={handleSkip}
-                  className="border-gray-700 text-gray-300 hover:bg-gray-800"
-                >
-                  Skip for now
-                </Button>
+            
+            <CardContent className="space-y-6">
+              {currentStep === 1 && (
+                <BasicInformationStep 
+                  data={tempData} 
+                  updateData={updateTempData} 
+                />
               )}
               
-              <Button
-                onClick={handleNext}
-                disabled={isSaving}
-                className="bg-gradient-to-r from-green-600 to-green-400 hover:from-green-600/90 hover:to-green-400/90"
-              >
-                {isSaving ? (
-                  <>
-                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                    Saving...
-                  </>
-                ) : currentStep === totalSteps ? (
-                  <>
-                    Complete Setup
-                    <CheckCircle className="w-4 h-4 ml-2" />
-                  </>
-                ) : (
-                  <>
-                    Next Step
-                    <ArrowRight className="w-4 h-4 ml-2" />
-                  </>
-                )}
-              </Button>
-            </div>
-          </div>
+              {currentStep === 2 && (
+                <PersonalInsightsStep 
+                  data={tempData} 
+                  updateData={updateTempData} 
+                />
+              )}
+              
+              {currentStep === 3 && (
+                <ProfessionalProfileStep 
+                  data={tempData} 
+                  updateData={updateTempData} 
+                />
+              )}
+              
+              <div className="flex justify-between pt-6">
+                <Button
+                  variant="outline"
+                  onClick={handleBack}
+                  disabled={currentStep === 1 || isSaving}
+                  className="flex items-center gap-2"
+                >
+                  <ArrowLeft className="w-4 h-4" />
+                  Back
+                </Button>
+                
+                <div className="flex gap-2">
+                  {currentStep === 3 && (
+                    <Button
+                      variant="outline"
+                      onClick={handleSkip}
+                      disabled={isSaving}
+                    >
+                      Skip
+                    </Button>
+                  )}
+                  
+                  <Button
+                    onClick={handleNext}
+                    disabled={isSaving}
+                    className="flex items-center gap-2 bg-gradient-to-r from-primary to-accent"
+                  >
+                    {isSaving ? (
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                    ) : currentStep === totalSteps ? (
+                      <CheckCircle className="w-4 h-4" />
+                    ) : (
+                      <ArrowRight className="w-4 h-4" />
+                    )}
+                    {isSaving ? 'Saving...' : currentStep === totalSteps ? (isEditMode ? 'Save Changes' : 'Complete Setup') : 'Next'}
+                  </Button>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
         </div>
       </div>
     </div>
