@@ -289,7 +289,7 @@ Ready to create some amazing content together? I'm here to help you shine even b
         }
 
         if (responseText) {
-             return <TypingAnimation text={responseText} speed={15} className="whitespace-pre-wrap" />
+             return <TypingAnimation text={responseText} speed={15} className="whitespace-pre-wrap" enableMarkdown={true} />
         }
        
         if (content.text) {

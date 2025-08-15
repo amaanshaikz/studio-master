@@ -23,15 +23,19 @@ import {
   TrendingUp,
   Activity,
   Zap,
-  ArrowRight
+  ArrowRight,
+  Video,
+  RefreshCw
 } from 'lucide-react';
 import { signOut } from 'next-auth/react';
 import PlatformIntegration from '@/components/platforms/PlatformIntegration';
+import PersonalizationOverlay from '@/components/auth/PersonalizationOverlay';
 
 interface UserData {
   id: string;
   email: string;
   full_name?: string;
+  role?: string;
   created_at: string;
 }
 
@@ -40,6 +44,7 @@ export default function AccountPage() {
   const router = useRouter();
   const [userData, setUserData] = useState<UserData | null>(null);
   const [loading, setLoading] = useState(true);
+  const [showPersonalization, setShowPersonalization] = useState(false);
 
   useEffect(() => {
     if (status === 'unauthenticated') {
@@ -84,6 +89,36 @@ export default function AccountPage() {
   const handleLogout = async () => {
     await signOut({ redirect: false });
     router.push('/');
+  };
+
+  const handlePersonalizationComplete = (role: string) => {
+    setShowPersonalization(false);
+    // Refresh the page to show updated role
+    window.location.reload();
+  };
+
+  const getRoleDisplayName = (role?: string) => {
+    switch (role) {
+      case 'creator': return 'Creator';
+      case 'individual': return 'Individual';
+      default: return 'Not Set';
+    }
+  };
+
+  const getRoleIcon = (role?: string) => {
+    switch (role) {
+      case 'creator': return <Video className="w-4 h-4" />;
+      case 'individual': return <User className="w-4 h-4" />;
+      default: return <User className="w-4 h-4" />;
+    }
+  };
+
+  const getRoleColor = (role?: string) => {
+    switch (role) {
+      case 'creator': return 'bg-blue-900/50 text-blue-400 border-blue-700';
+      case 'individual': return 'bg-green-900/50 text-green-400 border-green-700';
+      default: return 'bg-gray-900/50 text-gray-400 border-gray-700';
+    }
   };
 
   // Use userData if available, otherwise fall back to session data
@@ -153,6 +188,15 @@ export default function AccountPage() {
                         Active
                       </Badge>
                     </div>
+                    <div className="flex items-center justify-between text-sm p-3 bg-gray-800/50 rounded-lg border border-gray-700">
+                      <span className="text-gray-400 flex items-center gap-1">
+                        {getRoleIcon(userData?.role)}
+                        Role
+                      </span>
+                      <Badge variant="outline" className={getRoleColor(userData?.role)}>
+                        {getRoleDisplayName(userData?.role)}
+                      </Badge>
+                    </div>
                   </div>
                   <Button 
                     variant="outline" 
@@ -210,10 +254,67 @@ export default function AccountPage() {
                       variant="outline" 
                       size="sm" 
                       className="border-green-600/50 text-green-400 hover:bg-green-900/20 hover:border-green-500"
-                      onClick={() => router.push('/setup')}
+                      onClick={() => {
+                        if (userData?.role === 'creator') {
+                          router.push('/setup');
+                        } else if (userData?.role === 'individual') {
+                          router.push('/individual-setup');
+                        } else {
+                          setShowPersonalization(true);
+                        }
+                      }}
                     >
                       <Settings className="w-4 h-4 mr-2" />
                       Setup Profile
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Profile Personalization */}
+              <Card className="border border-gray-800 bg-gray-900/50 backdrop-blur-sm">
+                <CardHeader className="border-b border-gray-800">
+                  <CardTitle className="flex items-center gap-3 text-lg text-white">
+                    <div className="p-2 rounded-lg bg-purple-900/50 border border-purple-700/50">
+                      <RefreshCw className="w-5 h-5 text-purple-400" />
+                    </div>
+                    Profile Personalization
+                  </CardTitle>
+                  <CardDescription className="text-gray-400">
+                    Change your role and personalize your experience
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-6 pt-6">
+                  <div className="space-y-4">
+                    <div className="flex items-center justify-between p-4 bg-gray-800/50 rounded-lg border border-gray-700">
+                      <div className="flex items-center gap-3">
+                        {getRoleIcon(userData?.role)}
+                        <div>
+                          <div className="font-medium text-white">Current Role</div>
+                          <div className="text-sm text-gray-400">
+                            {getRoleDisplayName(userData?.role)}
+                          </div>
+                        </div>
+                      </div>
+                      <Badge variant="outline" className={getRoleColor(userData?.role)}>
+                        {getRoleDisplayName(userData?.role)}
+                      </Badge>
+                    </div>
+                    
+                    <div className="text-sm text-gray-400">
+                      <p>
+                        Your role determines which setup flow and features are available to you. 
+                        You can change this at any time.
+                      </p>
+                    </div>
+                    
+                    <Button
+                      variant="outline"
+                      onClick={() => setShowPersonalization(true)}
+                      className="border-purple-600/50 text-purple-400 hover:bg-purple-900/20 hover:border-purple-500"
+                    >
+                      <RefreshCw className="w-4 h-4 mr-2" />
+                      Change Role
                     </Button>
                   </div>
                 </CardContent>
@@ -327,6 +428,13 @@ export default function AccountPage() {
           </div>
         </div>
       </div>
+
+      {/* Personalization Overlay */}
+      <PersonalizationOverlay
+        isOpen={showPersonalization}
+        onClose={() => setShowPersonalization(false)}
+        onComplete={handlePersonalizationComplete}
+      />
     </div>
   );
 }

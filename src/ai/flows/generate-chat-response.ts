@@ -12,8 +12,14 @@
 import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
 import { buildCreatorProfileContext } from '@/ai/creatorProfileContext';
-import { generateWithVertex, isVertexAIConfigured } from '@/ai/vertex-ai';
+import { buildUserProfileContext } from '@/ai/profileContext';
+// import { generateWithVertex, isVertexAIConfigured } from '@/ai/vertex-ai';
 import { auth } from '@/lib/auth';
+import { createClient } from '@supabase/supabase-js';
+
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
+const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
+const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
 const HistoryItemSchema = z.object({
   role: z.enum(['user', 'model']),
@@ -25,6 +31,7 @@ const GenerateChatResponseInputSchema = z.object({
   history: z.array(HistoryItemSchema).optional().describe('The previous conversation history.'),
   documentContent: z.string().optional().describe('The content of an attached document to be used as context.'),
   creatorProfile: z.string().optional().describe('The creator profile context for content creators.'),
+  individualProfile: z.string().optional().describe('The individual profile context for personal users.'),
 });
 export type GenerateChatResponseInput = z.infer<typeof GenerateChatResponseInputSchema>;
 
@@ -180,160 +187,152 @@ Use the content below as relevant creator input or background:
 {{{query}}}`,
 });
 
+// Individual prompt (new)
+const generateIndividualChatResponsePrompt = ai.definePrompt({
+  name: 'generateIndividualChatResponsePrompt',
+  input: {schema: GenerateChatResponseInputSchema},
+  output: {schema: GenerateChatResponseOutputSchema},
+  prompt: `You are CreateX AI, the Personalized AI Life Copilot for an individual. Your role is to deeply understand their personal profile, goals, preferences, and life circumstances — and use this understanding to provide highly tailored advice, suggestions, and support for their daily life, personal growth, hobbies, productivity, and overall well-being.
+
+---  
+### Individual Profile (injected from Supabase)
+{{#if individualProfile}}
+Individual Profile:
+\`\`\`
+{{individualProfile}}
+\`\`\`
+Use this individual profile as the single source of truth for personalization. If the profile is present, assume it is current and authoritative. If missing, respond with a helpful fallback request for the individual to complete their profile.
+{{else}}
+Individual profile unavailable — ask the individual to complete their onboarding form (name, goals, preferences, etc.).
+{{/if}}
+
+---
+### Individual Data Fields (available when profile present)
+Full Name, Nickname, Age, Location, Timezone, Languages, Communication Style, Motivation, Personality Type, Productive Time, Productivity Systems, Focus Areas, Profession, Career/Study Goals, Work Challenges, Tools Used, AI Support Preferences, AI Boundaries.
+
+---
+
+### Behavior Rules (Fundamental)
+1. **Think like a trusted life coach and productivity expert.** Understand personal development, time management, and life optimization.  
+2. **Never give generic advice.** Every suggestion must reflect the individual's personality, goals, communication style, and current circumstances.  
+3. **Be context-aware.** Consider their profession, work challenges, productivity systems, and personal preferences.  
+4. **Include actionable details:** specific steps, time estimates, tools recommendations, and follow-up actions.  
+5. **Prioritize well-being.** Balance productivity with mental health, work-life balance, and personal fulfillment.  
+6. **Respect boundaries.** Avoid topics or suggestions that the individual has explicitly marked as off-limits.  
+7. **Be encouraging and supportive.** Maintain a positive, motivating tone while being realistic.
+
+---
+
+### AI Behavior Phases (how to operate)
+
+**Phase 1 — Understanding Mode (clarify)**  
+- If the individual's query lacks clarity, ask gentle, clarifying questions.  
+- Mirror their concerns and propose 1–2 interpretation options before providing detailed advice.  
+Use supportive prompts like: "I want to make sure I understand — are you looking for X or Y?" or "Should I focus on immediate solutions or long-term strategies?"
+
+**Phase 2 — Supportive Mode (deliver)**  
+- When intent is clear, provide personalized, actionable advice and strategies.  
+- Anticipate follow-ups and provide next steps the individual can implement immediately.
+
+---
+
+### Core Capabilities (deliverables you should produce)
+- **Productivity advice:** Time management strategies, workflow optimization, tool recommendations.  
+- **Personal development:** Goal setting, habit formation, skill development, motivation techniques.  
+- **Life optimization:** Work-life balance, stress management, health and wellness suggestions.  
+- **Problem-solving:** Creative solutions for personal and professional challenges.  
+- **Learning guidance:** Study strategies, skill acquisition, knowledge organization.  
+- **Communication support:** Writing assistance, presentation help, interpersonal advice.  
+- **Hobby and interest support:** Recommendations, resources, and guidance for personal interests.
+
+---
+
+### Output Structure (required)
+When providing advice or suggestions, return **clear, actionable recommendations**. For each suggestion include:
+- **Main Recommendation (1-2 lines)**  
+- **Why This Works (1-2 lines)**  
+- **Specific Steps (3-5 bullet points)**  
+- **Time Estimate (realistic timeframe)**  
+- **Tools/Resources (if applicable)**  
+- **Follow-up Actions (what to do next)**
+
+Always finish every reply with **two short follow-up prompt suggestions** the individual can pick from (written from their perspective), for example:
+- "Help me create a daily routine that works for my schedule"  
+- "Give me strategies to stay motivated when I'm feeling stuck"
+
+---
+
+### Final Instruction (tone & identity)
+Always act as if you are a **trusted life coach and productivity expert** who deeply understands the individual's unique situation. Your outputs should feel like they come from someone who has been supporting their personal growth journey: empathetic, practical, and immediately actionable. Help them achieve their goals while maintaining balance and well-being.
+
+### IMPORTANT: Output Format
+After providing your main response, ALWAYS end with exactly this format:
+
+**Follow-up prompts:**
+- [First follow-up suggestion]
+- [Second follow-up suggestion]
+
+---
+
+{{#if history}}
+**Conversation History:**
+Use this history to avoid repeating info or asking again:
+{{#each history}}
+- **{{role}}**: {{content}}
+{{/each}}
+---
+{{/if}}
+
+{{#if documentContent}}
+**Context Document:**
+Use the content below as relevant individual input or background:
+---
+{{{documentContent}}}
+---
+{{/if}}
+
+**Individual Query:**  
+{{{query}}}`,
+});
+
 /**
- * Generate response using the appropriate AI backend based on environment
+ * Fetch user role from the database
  */
-async function generateResponseWithBackend(enrichedInput: GenerateChatResponseInput): Promise<GenerateChatResponseOutput> {
-  const isProduction = process.env.NODE_ENV === 'production';
-  const devBackend = process.env.DEV_AI_BACKEND;
-  
-  // Production: Always use Gemini API
-  if (isProduction) {
-    console.log('Using Gemini API (production)');
-    const {output} = await generateChatResponsePrompt(enrichedInput);
-    return output!;
-  }
-  
-  // Development: Check DEV_AI_BACKEND setting
-  if (devBackend === 'vertex') {
-    // Try Vertex AI first
-    if (isVertexAIConfigured()) {
-      try {
-        console.log('Using Vertex AI (development)');
-        
-        // Create the prompt text manually
-        const promptText = createPromptText(enrichedInput);
-        
-        // Generate with Vertex AI
-        const response = await generateWithVertex(promptText);
-        
-        // Parse the response to extract response and followUpPrompts
-        // Look for follow-up prompts in the response
-        const responseText = response.trim();
-        
-        // Try to extract follow-up prompts using multiple patterns
-        let followUpPrompts: string[] = [];
-        let mainResponse = responseText;
-        
-        // Pattern 1: Look for "follow-up" or "Follow-up" sections
-        const followUpPatterns = [
-          /follow-up prompts?[:\s]*\n?([\s\S]*?)(?=\n\n|$)/i,
-          /Follow-up prompts?[:\s]*\n?([\s\S]*?)(?=\n\n|$)/i,
-          /next steps?[:\s]*\n?([\s\S]*?)(?=\n\n|$)/i,
-          /Next steps?[:\s]*\n?([\s\S]*?)(?=\n\n|$)/i,
-          /suggestions?[:\s]*\n?([\s\S]*?)(?=\n\n|$)/i,
-          /Suggestions?[:\s]*\n?([\s\S]*?)(?=\n\n|$)/i
-        ];
-        
-        for (const pattern of followUpPatterns) {
-          const match = responseText.match(pattern);
-          if (match && match[1]) {
-            // Extract individual prompts from the matched section
-            const followUpSection = match[1].trim();
-                  const promptLines = followUpSection
-        .split('\n')
-        .map(line => line.trim())
-        .filter(line => line.length > 0)
-        .filter(line => line.startsWith('-') || line.startsWith('•') || line.startsWith('*'))
-        .map(line => line.replace(/^[-•*]\s*/, '').replace(/^["']|["']$/g, ''))
-        .filter(line => line.length > 0)
-        .slice(0, 2); // Take first 2 prompts
-            
-            if (promptLines.length > 0) {
-              followUpPrompts = promptLines;
-              // Remove the follow-up section from the main response
-              mainResponse = responseText.replace(pattern, '').trim();
-              break;
-            }
-          }
-        }
-        
-        // Pattern 2: Look for bullet points at the end that might be follow-ups
-        if (followUpPrompts.length === 0) {
-          const lines = responseText.split('\n');
-          const bulletLines = lines
-            .reverse() // Start from the end
-            .slice(0, 10) // Look at last 10 lines
-            .filter(line => {
-              const trimmed = line.trim();
-              return trimmed.startsWith('-') || trimmed.startsWith('•') || trimmed.startsWith('*');
-            })
-            .map(line => line.trim().replace(/^[-•*]\s*/, ''))
-            .filter(line => line.length > 0)
-            .slice(0, 2); // Take first 2
-          
-          if (bulletLines.length > 0) {
-            followUpPrompts = bulletLines.reverse(); // Reverse back to original order
-            // Remove the bullet points from the main response
-            const linesWithoutBullets = lines
-              .reverse() // Back to original order
-              .filter(line => {
-                const trimmed = line.trim();
-                return !trimmed.startsWith('-') && !trimmed.startsWith('•') && !trimmed.startsWith('*');
-              });
-            mainResponse = linesWithoutBullets.join('\n').trim();
-          }
-        }
-        
-        // Pattern 3: Look for quoted prompts at the end
-        if (followUpPrompts.length === 0) {
-          const lines = responseText.split('\n');
-          const quotedLines = lines
-            .reverse() // Start from the end
-            .slice(0, 10) // Look at last 10 lines
-            .filter(line => {
-              const trimmed = line.trim();
-              return trimmed.startsWith('"') && trimmed.endsWith('"');
-            })
-            .map(line => line.trim().replace(/^"/, '').replace(/"$/, ''))
-            .filter(line => line.length > 0)
-            .slice(0, 2); // Take first 2
-          
-          if (quotedLines.length > 0) {
-            followUpPrompts = quotedLines.reverse(); // Reverse back to original order
-            // Remove the quoted lines from the main response
-            const linesWithoutQuotes = lines
-              .reverse() // Back to original order
-              .filter(line => {
-                const trimmed = line.trim();
-                return !trimmed.startsWith('"') || !trimmed.endsWith('"');
-              });
-            mainResponse = linesWithoutQuotes.join('\n').trim();
-          }
-        }
-        
-        // If no follow-ups found, generate some default ones
-        if (followUpPrompts.length === 0) {
-          followUpPrompts = [
-            "Give me more content ideas for this topic",
-            "Help me optimize this for better engagement"
-          ];
-        }
-        
-        console.log('Vertex AI Response Parsing:');
-        console.log('- Main response length:', mainResponse.length);
-        console.log('- Follow-up prompts found:', followUpPrompts.length);
-        console.log('- Follow-up prompts:', followUpPrompts);
-        
-        return {
-          response: mainResponse,
-          followUpPrompts: followUpPrompts
-        };
-        
-      } catch (error) {
-        console.error('Vertex AI failed, falling back to Gemini API:', error);
-        console.log('Using Gemini API (fallback)');
-        const {output} = await generateChatResponsePrompt(enrichedInput);
-        return output!;
-      }
-    } else {
-      console.log('Vertex AI not configured, using Gemini API');
-      const {output} = await generateChatResponsePrompt(enrichedInput);
-      return output!;
+async function getUserRole(userId: string): Promise<string | null> {
+  try {
+    const { data, error } = await supabase
+      .from('users')
+      .select('role')
+      .eq('id', userId)
+      .single();
+
+    if (error) {
+      console.error('Error fetching user role:', error);
+      return null;
     }
+
+    return data?.role || null;
+  } catch (error) {
+    console.error('Error in getUserRole:', error);
+    return null;
+  }
+}
+
+/**
+ * Generate response using role-based prompts
+ */
+async function generateResponseWithBackend(enrichedInput: GenerateChatResponseInput, userRole?: string): Promise<GenerateChatResponseOutput> {
+  // Always use Gemini API
+  console.log('Using Gemini API');
+  
+  // Use role-based prompt selection
+  if (userRole === 'individual') {
+    console.log('Using Individual prompt');
+    const {output} = await generateIndividualChatResponsePrompt(enrichedInput);
+    return output!;
   } else {
-    // Default to Gemini API
-    console.log('Using Gemini API (development)');
+    // Default to creator prompt (for 'creator' role or no role)
+    console.log('Using Creator prompt');
     const {output} = await generateChatResponsePrompt(enrichedInput);
     return output!;
   }
@@ -341,7 +340,9 @@ async function generateResponseWithBackend(enrichedInput: GenerateChatResponseIn
 
 /**
  * Create prompt text manually for Vertex AI
+ * NOTE: This function is commented out as Vertex AI integration is disabled
  */
+/*
 function createPromptText(input: GenerateChatResponseInput): string {
   const historyText = input.history && input.history.length > 0 
     ? `\n**Conversation History:**\nUse this history to avoid repeating info or asking again:\n${input.history.map(h => `- **${h.role}**: ${h.content}`).join('\n')}\n---\n`
@@ -431,6 +432,7 @@ ${historyText}${documentText}
 **Creator Query:**  
 ${input.query}`;
 }
+*/
 
 const generateChatResponseFlow = ai.defineFlow(
   {
@@ -439,30 +441,51 @@ const generateChatResponseFlow = ai.defineFlow(
     outputSchema: GenerateChatResponseOutputSchema,
   },
   async input => {
-    // Preprocessing step: Enrich prompt with creator profile context if authenticated
+    // Preprocessing step: Enrich prompt with role-based profile context if authenticated
     let enriched = input;
+    let userRole: string | null = null;
+    
     try {
       const session = await auth();
       const userId = session?.user?.id;
+      
       if (userId) {
-        // Only fetch creator profile if not already provided in input
-        if (!input.creatorProfile) {
-          const creatorContext = await buildCreatorProfileContext();
-          if (creatorContext && creatorContext !== "Creator profile unavailable.") {
-          enriched = {
-              ...enriched,
-              creatorProfile: creatorContext,
-          };
+        // Fetch user role first
+        userRole = await getUserRole(userId);
+        console.log('User role:', userRole);
+        
+        // Only fetch profile context if not already provided in input
+        if (userRole === 'individual') {
+          // For individuals, fetch profile context from user_profiles table
+          if (!input.individualProfile) {
+            const individualContext = await buildUserProfileContext(userId);
+            if (individualContext) {
+              enriched = {
+                ...enriched,
+                individualProfile: individualContext,
+              };
+            }
+          }
+        } else {
+          // For creators (or no role), fetch creator profile context
+          if (!input.creatorProfile) {
+            const creatorContext = await buildCreatorProfileContext();
+            if (creatorContext && creatorContext !== "Creator profile unavailable.") {
+              enriched = {
+                ...enriched,
+                creatorProfile: creatorContext,
+              };
+            }
           }
         }
       }
     } catch (error) {
       // Graceful fallback - continue with original input if profile fetching fails
-      console.error('Error enriching creator profile context:', error);
+      console.error('Error enriching profile context:', error);
     }
     
-    // Generate response using the appropriate backend
-    return await generateResponseWithBackend(enriched);
+    // Generate response using the appropriate backend with role-based prompt selection
+    return await generateResponseWithBackend(enriched, userRole || undefined);
   }
 );
 

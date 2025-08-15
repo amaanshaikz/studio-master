@@ -22,6 +22,7 @@ import {
   Settings,
   Loader2
 } from 'lucide-react';
+import CreatorProfileView from './CreatorProfileView';
 
 interface ProfileData {
   id?: string;
@@ -56,13 +57,40 @@ const ProfileView = () => {
   const router = useRouter();
   const { toast } = useToast();
   const [profileData, setProfileData] = useState<ProfileData | null>(null);
+  const [userRole, setUserRole] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     if (status === 'authenticated' && session?.user?.id) {
-      loadProfileData();
+      loadUserRole();
     }
   }, [session, status]);
+
+  const loadUserRole = async () => {
+    try {
+      const response = await fetch('/api/user/role');
+      if (response.ok) {
+        const data = await response.json();
+        setUserRole(data.user.role);
+        
+        // Load appropriate profile data based on role
+        if (data.user.role === 'creator') {
+          // For creators, we'll let CreatorProfileView handle the data loading
+          setIsLoading(false);
+        } else {
+          // For individuals, load the regular profile data
+          loadProfileData();
+        }
+      } else {
+        // No role set, load regular profile data
+        loadProfileData();
+      }
+    } catch (error) {
+      console.error('Error loading user role:', error);
+      // Fallback to loading regular profile data
+      loadProfileData();
+    }
+  };
 
   const loadProfileData = async () => {
     try {
@@ -83,9 +111,27 @@ const ProfileView = () => {
     }
   };
 
-  const handleEditProfile = () => {
-    // Redirect to setup wizard with existing data
-    router.push('/setup');
+  const handleEditProfile = async () => {
+    // Check user role to determine which setup to redirect to
+    try {
+      const response = await fetch('/api/user/role');
+      if (response.ok) {
+        const data = await response.json();
+        if (data.user.role === 'creator') {
+          router.push('/setup');
+        } else if (data.user.role === 'individual') {
+          router.push('/individual-setup');
+        } else {
+          // No role set, go to main setup which will show personalization
+          router.push('/setup');
+        }
+      } else {
+        router.push('/setup');
+      }
+    } catch (error) {
+      console.error('Error fetching user role:', error);
+      router.push('/setup');
+    }
   };
 
   const handleCompleteSetup = () => {
@@ -100,6 +146,12 @@ const ProfileView = () => {
     );
   }
 
+  // If user is a creator, render the CreatorProfileView
+  if (userRole === 'creator') {
+    return <CreatorProfileView />;
+  }
+
+  // For individual users or users without a role set
   if (!profileData) {
     return (
       <div className="min-h-screen bg-black flex items-center justify-center">

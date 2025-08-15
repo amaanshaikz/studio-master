@@ -627,7 +627,7 @@ export default function CopilotPage() {
         }
 
         if (responseText) {
-             return <TypingAnimation text={responseText} speed={15} className="whitespace-pre-wrap" />
+             return <TypingAnimation text={responseText} speed={15} className="whitespace-pre-wrap" enableMarkdown={true} />
         }
        
         if (content.text) {

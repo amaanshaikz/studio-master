@@ -12,11 +12,13 @@ import { Loader2, Eye, EyeOff, Mail, Lock, User, AlertCircle, CheckCircle } from
 import Link from 'next/link';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
+import PersonalizationOverlay from '@/components/auth/PersonalizationOverlay';
 
 export default function SignupPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [showPersonalization, setShowPersonalization] = useState(false);
   const [formData, setFormData] = useState({
     fullName: '',
     email: '',
@@ -149,8 +151,8 @@ export default function SignupPage() {
         });
 
         if (!result?.error) {
-          router.push('/setup');
-          router.refresh();
+          // Show personalization overlay instead of going directly to setup
+          setShowPersonalization(true);
         } else {
           console.error('NextAuth signin error:', result.error);
           toast({
@@ -185,6 +187,16 @@ export default function SignupPage() {
         variant: "destructive",
       });
     }
+  };
+
+  const handlePersonalizationComplete = (role: string) => {
+    setShowPersonalization(false);
+    if (role === 'creator') {
+      router.push('/setup');
+    } else {
+      router.push('/individual-setup');
+    }
+    router.refresh();
   };
 
   const getPasswordStrengthColor = () => {
@@ -463,6 +475,13 @@ export default function SignupPage() {
           </Card>
         </div>
       </div>
+
+      {/* Personalization Overlay */}
+      <PersonalizationOverlay
+        isOpen={showPersonalization}
+        onClose={() => setShowPersonalization(false)}
+        onComplete={handlePersonalizationComplete}
+      />
     </div>
   );
 }
