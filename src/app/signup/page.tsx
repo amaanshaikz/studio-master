@@ -174,20 +174,20 @@ export default function SignupPage() {
     }
   };
 
-  const handleGoogleSignup = async () => {
-    try {
-      await signIn('google', {
-        callbackUrl: '/setup',
-      });
-    } catch (error) {
-      console.error('Google signup error:', error);
-      toast({
-        title: "Google signup failed",
-        description: "Please try again later.",
-        variant: "destructive",
-      });
-    }
-  };
+  // const handleGoogleSignup = async () => {
+  //   try {
+  //     await signIn('google', {
+  //       callbackUrl: '/setup',
+  //     });
+  //   } catch (error) {
+  //     console.error('Google signup error:', error);
+  //     toast({
+  //       title: "Google signup failed",
+  //       description: "Please try again later.",
+  //       variant: "destructive",
+  //     });
+  //   }
+  // };
 
   const handlePersonalizationComplete = (role: string) => {
     setShowPersonalization(false);
@@ -231,7 +231,7 @@ export default function SignupPage() {
                 </CardDescription>
               </div>
             </CardHeader>
-            <CardContent className="space-y-6">
+            <CardContent className="space-y-4">
               <form onSubmit={handleSignup} className="space-y-4">
                 <div className="space-y-2">
                   <Label htmlFor="fullName" className="text-sm font-medium text-foreground">
@@ -413,7 +413,8 @@ export default function SignupPage() {
                 </Button>
               </form>
 
-              <div className="relative">
+              {/* Google Auth Section - Commented out until setup is complete */}
+              {/* <div className="relative">
                 <div className="absolute inset-0 flex items-center">
                   <span className="w-full border-t border-border" />
                 </div>
@@ -448,7 +449,7 @@ export default function SignupPage() {
                   />
                 </svg>
                 Continue with Google
-              </Button>
+              </Button> */}
 
               <div className="text-center space-y-4">
                 <p className="text-sm text-muted-foreground">

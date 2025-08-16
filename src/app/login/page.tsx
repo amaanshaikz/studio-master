@@ -107,20 +107,20 @@ export default function LoginPage() {
     }
   };
 
-  const handleGoogleLogin = async () => {
-    try {
-      await signIn('google', {
-        callbackUrl: '/setup',
-      });
-    } catch (error) {
-      console.error('Google login error:', error);
-      toast({
-        title: "Google login failed",
-        description: "Please try again later.",
-        variant: "destructive",
-      });
-    }
-  };
+  // const handleGoogleLogin = async () => {
+  //   try {
+  //     await signIn('google', {
+  //       callbackUrl: '/setup',
+  //     });
+  //   } catch (error) {
+  //     console.error('Google login error:', error);
+  //     toast({
+  //       title: "Google login failed",
+  //       description: "Please try again later.",
+  //       variant: "destructive",
+  //     });
+  //   }
+  // };
 
   return (
     <div className="min-h-screen relative">
@@ -148,7 +148,7 @@ export default function LoginPage() {
                 </CardDescription>
               </div>
             </CardHeader>
-            <CardContent className="space-y-6">
+            <CardContent className="space-y-4">
               <form onSubmit={handleLogin} className="space-y-4">
                 <div className="space-y-2">
                   <Label htmlFor="email" className="text-sm font-medium text-foreground">
@@ -234,7 +234,8 @@ export default function LoginPage() {
                 </Button>
               </form>
 
-              <div className="relative">
+              {/* Google Auth Section - Commented out until setup is complete */}
+              {/* <div className="relative">
                 <div className="absolute inset-0 flex items-center">
                   <span className="w-full border-t border-border" />
                 </div>
@@ -269,7 +270,7 @@ export default function LoginPage() {
                   />
                 </svg>
                 Continue with Google
-              </Button>
+              </Button> */}
 
               <div className="text-center space-y-4">
                 <p className="text-sm text-muted-foreground">
