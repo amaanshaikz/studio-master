@@ -15,12 +15,7 @@ import {
   Shield, 
   Settings, 
   LogOut, 
-  Brain, 
-  Sparkles, 
-  FileText, 
-  Hash, 
   Crown,
-  TrendingUp,
   Activity,
   Zap,
   ArrowRight,
@@ -323,53 +318,6 @@ export default function AccountPage() {
               {/* Platform Integration */}
               <PlatformIntegration />
 
-              {/* Minimal Account Statistics */}
-              <Card className="border border-gray-800 bg-gray-900/50 backdrop-blur-sm">
-                <CardHeader className="border-b border-gray-800">
-                  <CardTitle className="flex items-center gap-3 text-lg text-white">
-                    <div className="p-2 rounded-lg bg-purple-900/50 border border-purple-700/50">
-                      <TrendingUp className="w-5 h-5 text-purple-400" />
-                    </div>
-                    Statistics
-                  </CardTitle>
-                  <CardDescription className="text-gray-400">
-                    Your activity and usage statistics
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="pt-6">
-                  <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                    <div className="text-center p-6 bg-gray-800/50 rounded-xl border border-gray-700">
-                      <div className="p-3 bg-blue-600/20 rounded-full w-fit mx-auto mb-3 border border-blue-600/30">
-                        <Brain className="w-6 h-6 text-blue-400" />
-                      </div>
-                      <div className="text-3xl font-bold text-blue-400">0</div>
-                      <div className="text-sm text-gray-400 font-medium">AI Sessions</div>
-                    </div>
-                    <div className="text-center p-6 bg-gray-800/50 rounded-xl border border-gray-700">
-                      <div className="p-3 bg-purple-600/20 rounded-full w-fit mx-auto mb-3 border border-purple-600/30">
-                        <FileText className="w-6 h-6 text-purple-400" />
-                      </div>
-                      <div className="text-3xl font-bold text-purple-400">0</div>
-                      <div className="text-sm text-gray-400 font-medium">Scripts</div>
-                    </div>
-                    <div className="text-center p-6 bg-gray-800/50 rounded-xl border border-gray-700">
-                      <div className="p-3 bg-green-600/20 rounded-full w-fit mx-auto mb-3 border border-green-600/30">
-                        <Hash className="w-6 h-6 text-green-400" />
-                      </div>
-                      <div className="text-3xl font-bold text-green-400">0</div>
-                      <div className="text-sm text-gray-400 font-medium">Captions</div>
-                    </div>
-                    <div className="text-center p-6 bg-gray-800/50 rounded-xl border border-gray-700">
-                      <div className="p-3 bg-orange-600/20 rounded-full w-fit mx-auto mb-3 border border-orange-600/30">
-                        <Sparkles className="w-6 h-6 text-orange-400" />
-                      </div>
-                      <div className="text-3xl font-bold text-orange-400">0</div>
-                      <div className="text-sm text-gray-400 font-medium">Ideas</div>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-
               {/* Minimal Quick Actions */}
               <Card className="border border-gray-800 bg-gray-900/50 backdrop-blur-sm">
                 <CardHeader className="border-b border-gray-800">
@@ -385,7 +333,10 @@ export default function AccountPage() {
                 </CardHeader>
                 <CardContent className="pt-6">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <Button className="h-16 bg-gradient-to-r from-primary to-accent hover:from-primary/90 hover:to-accent/90 border-0 shadow-lg">
+                    <Button 
+                      className="h-16 bg-gradient-to-r from-primary to-accent hover:from-primary/90 hover:to-accent/90 border-0 shadow-lg"
+                      onClick={() => router.push('/copilot')}
+                    >
                       <div className="text-left w-full flex items-center justify-between">
                         <div>
                           <div className="font-semibold text-lg">AI Copilot</div>
@@ -394,7 +345,11 @@ export default function AccountPage() {
                         <ArrowRight className="w-4 h-4" />
                       </div>
                     </Button>
-                    <Button variant="outline" className="h-16 border-gray-700 hover:bg-gray-800/50 text-white shadow-lg">
+                    <Button 
+                      variant="outline" 
+                      className="h-16 border-gray-700 hover:bg-gray-800/50 text-white shadow-lg"
+                      onClick={() => router.push('/copilot?tool=script')}
+                    >
                       <div className="text-left w-full flex items-center justify-between">
                         <div>
                           <div className="font-semibold text-lg">Generate Scripts</div>
@@ -403,7 +358,11 @@ export default function AccountPage() {
                         <ArrowRight className="w-4 h-4" />
                       </div>
                     </Button>
-                    <Button variant="outline" className="h-16 border-gray-700 hover:bg-gray-800/50 text-white shadow-lg">
+                    <Button 
+                      variant="outline" 
+                      className="h-16 border-gray-700 hover:bg-gray-800/50 text-white shadow-lg"
+                      onClick={() => router.push('/copilot?tool=captions')}
+                    >
                       <div className="text-left w-full flex items-center justify-between">
                         <div>
                           <div className="font-semibold text-lg">Create Captions</div>
