@@ -677,8 +677,8 @@ export default function CopilotPage() {
                                     <div className="p-3 sm:p-4 rounded-full bg-primary/10 border border-primary/20 mb-3 sm:mb-4">
                                         <BrainCircuit className="h-8 w-8 sm:h-12 sm:w-12 text-primary" />
                                     </div>
-                                    <h2 className="text-xl sm:text-2xl font-bold text-foreground">Content Copilot</h2>
-                                    <p className="max-w-md text-sm sm:text-base px-4">Your AI partner for content creation. Select a tool below and provide some details to get started.</p>
+                                    <h2 className="text-xl sm:text-2xl font-bold text-foreground">Personalized AI Content Copilot</h2>
+                                    <p className="max-w-md text-sm sm:text-base px-4 text-center">Your all-in-one creative copilot — tailored to your style, your audience, your growth.</p>
                                 </div>
                             ) : (
                                 messages.map((message, index) => (
