@@ -686,28 +686,28 @@ export default function CopilotPage() {
                                        <div className={cn('flex items-start gap-2 sm:gap-4', message.role === 'user' ? 'justify-end' : 'justify-start')}>
                                             {message.role === 'model' && <div className="p-1.5 sm:p-2 rounded-full bg-primary/10 border border-primary/20 flex-shrink-0"><Bot className="w-4 h-4 sm:w-6 sm:h-6 text-primary" /></div>}
                                             <div className={cn(
-                                                'relative group max-w-[calc(100vw-3rem)] sm:max-w-xl px-3 py-2.5 sm:px-4 sm:py-3 text-sm sm:text-base', 
+                                                'relative group min-w-0 flex-1 max-w-[calc(100vw-4rem)] sm:max-w-2xl px-3 py-2.5 sm:px-4 sm:py-3 text-sm sm:text-base', 
                                                 message.role === 'user' 
                                                     ? 'bg-neutral-800 text-primary-foreground rounded-2xl' 
                                                     : 'text-foreground'
                                             )}>
-                                                <div className="whitespace-pre-wrap break-words">
+                                                <div className="whitespace-pre-wrap break-words overflow-hidden">
                                                     {renderMessageContent(message.content)}
                                                 </div>
                                             </div>
                                        </div>
                                        {message.role === 'model' && message.content.followUpPrompts && message.content.followUpPrompts.length > 0 && index === messages.length - 1 && !isLoading && (
-                                            <div className="flex flex-col sm:flex-wrap gap-2 sm:gap-1.5 max-w-[calc(100vw-3rem)] sm:max-w-xl ml-8 sm:ml-14">
+                                            <div className="flex flex-col sm:flex-wrap gap-2 sm:gap-1.5 min-w-0 flex-1 max-w-[calc(100vw-4rem)] sm:max-w-2xl ml-8 sm:ml-14">
                                               {message.content.followUpPrompts.map((prompt, i) => (
                                                   <Button
                                                       key={i}
                                                       variant="outline"
                                                       size="sm"
                                                       onClick={() => submitFollowUpPrompt(prompt)}
-                                                      className="text-xs h-auto py-1.5 px-2 sm:px-3 min-h-[32px] sm:min-h-[36px] w-full sm:w-auto"
+                                                      className="text-xs h-auto py-1.5 px-2 sm:px-3 min-h-[32px] sm:min-h-[36px] w-full sm:w-auto min-w-0"
                                                   >
-                                                      <Lightbulb className="h-3 w-3 mr-1.5 sm:mr-2" />
-                                                      <span className="truncate w-full sm:max-w-none">{prompt}</span>
+                                                      <Lightbulb className="h-3 w-3 mr-1.5 sm:mr-2 flex-shrink-0" />
+                                                      <span className="truncate w-full sm:max-w-none min-w-0">{prompt}</span>
                                                   </Button>
                                               ))}
                                             </div>
@@ -718,7 +718,7 @@ export default function CopilotPage() {
                             {isLoading && (
                                 <div className="flex items-start gap-2 sm:gap-4 justify-start">
                                 <div className="p-1.5 sm:p-2 rounded-full bg-primary/10 border border-primary/20 flex-shrink-0"><Bot className="w-4 h-4 sm:w-6 sm:h-6 text-primary" /></div>
-                                    <div className="max-w-[calc(100vw-3rem)] sm:max-w-md rounded-xl px-3 py-2.5 sm:px-4 sm:py-3 flex items-center">
+                                    <div className="min-w-0 flex-1 max-w-[calc(100vw-4rem)] sm:max-w-2xl rounded-xl px-3 py-2.5 sm:px-4 sm:py-3 flex items-center">
                                         <Loader2 className="h-4 w-4 sm:h-5 sm:w-5 animate-spin text-primary" />
                                     </div>
                                 </div>

@@ -208,3 +208,92 @@ The follow-up prompts are now fully optimized for mobile devices while maintaini
 - ✅ **User Experience**: Full text visibility on mobile devices
 
 The follow-up prompts now provide optimal text display on all screen sizes! 📱✨
+
+---
+
+## 🔧 **ChatResult Section Optimization - Additional Update**
+
+### **Issue Identified**
+- **User Prompts Cut Off**: User messages in ChatResult were being truncated due to restrictive container widths
+- **Follow-up Prompts Limited**: Follow-up prompt containers had narrow max-widths causing visibility issues
+- **Poor Mobile Experience**: Content was not using available horizontal space effectively
+- **Inconsistent Layout**: Different max-widths across message types causing layout inconsistencies
+
+### **Fix Applied**
+
+#### **Before (Problematic)**
+```tsx
+// User/Model Messages
+<div className="max-w-[calc(100vw-3rem)] sm:max-w-xl">
+  <div className="whitespace-pre-wrap break-words">
+    {renderMessageContent(message.content)}
+  </div>
+</div>
+
+// Follow-up Prompts
+<div className="max-w-[calc(100vw-3rem)] sm:max-w-xl ml-8 sm:ml-14">
+  <Button className="w-full sm:w-auto">
+    <span className="truncate w-full sm:max-w-none">{prompt}</span>
+  </Button>
+</div>
+```
+
+#### **After (Optimized)**
+```tsx
+// User/Model Messages
+<div className="min-w-0 flex-1 max-w-[calc(100vw-4rem)] sm:max-w-2xl">
+  <div className="whitespace-pre-wrap break-words overflow-hidden">
+    {renderMessageContent(message.content)}
+  </div>
+</div>
+
+// Follow-up Prompts
+<div className="min-w-0 flex-1 max-w-[calc(100vw-4rem)] sm:max-w-2xl ml-8 sm:ml-14">
+  <Button className="w-full sm:w-auto min-w-0">
+    <Lightbulb className="flex-shrink-0" />
+    <span className="truncate w-full sm:max-w-none min-w-0">{prompt}</span>
+  </Button>
+</div>
+```
+
+### **Key Improvements**
+
+#### **1. Container Width Optimization**
+- ✅ **Increased Max Width**: Changed from `sm:max-w-xl` to `sm:max-w-2xl` for better desktop experience
+- ✅ **Better Mobile Width**: Updated from `max-w-[calc(100vw-3rem)]` to `max-w-[calc(100vw-4rem)]` for more space
+- ✅ **Flex Layout**: Added `min-w-0 flex-1` for proper flex behavior and text expansion
+
+#### **2. Text Handling Improvements**
+- ✅ **Overflow Control**: Added `overflow-hidden` to prevent text overflow issues
+- ✅ **Flex-shrink Control**: Added `flex-shrink-0` to icons to prevent them from shrinking
+- ✅ **Minimum Width**: Added `min-w-0` to buttons and spans for proper text truncation
+
+#### **3. Responsive Layout**
+- ✅ **Mobile First**: Optimized for mobile devices with better space utilization
+- ✅ **Desktop Enhancement**: Increased max-width for better desktop experience
+- ✅ **Consistent Spacing**: Unified spacing and layout across all message types
+
+### **Files Updated**
+1. **`src/app/copilot/page.tsx`**: Optimized ChatResult section layout and text handling
+2. **`src/app/demo/page.tsx`**: Applied consistent optimizations for demo page
+
+### **Result**
+- ✅ **Better Visibility**: User prompts and follow-up prompts are now fully visible
+- ✅ **Optimal Space Usage**: Content uses available horizontal space effectively
+- ✅ **Responsive Design**: Smooth adaptation across all screen sizes
+- ✅ **Consistent Layout**: Unified styling and behavior across both pages
+- ✅ **Improved UX**: No more cut-off text or wasted space
+
+### **Technical Details**
+
+#### **Container Classes Applied**
+- `min-w-0`: Prevents flex items from having a minimum width that could cause overflow
+- `flex-1`: Allows containers to expand and fill available space
+- `overflow-hidden`: Prevents content from overflowing container boundaries
+- `flex-shrink-0`: Prevents icons from shrinking when space is limited
+
+#### **Responsive Breakpoints**
+- **Mobile (< 640px)**: Uses `max-w-[calc(100vw-4rem)]` for optimal mobile space usage
+- **Desktop (≥ 640px)**: Uses `sm:max-w-2xl` for enhanced desktop experience
+
+The ChatResult section now provides optimal text visibility and layout across all devices! 📱✨

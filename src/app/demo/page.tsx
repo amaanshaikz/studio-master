@@ -349,26 +349,28 @@ Ready to create some amazing content together? I'm here to help you shine even b
                                            <div className={cn('flex items-start gap-4', message.role === 'user' ? 'justify-end' : 'justify-start')}>
                                                 {message.role === 'model' && <div className="p-2 rounded-full bg-primary/10 border border-primary/20 flex-shrink-0"><Bot className="w-6 h-6 text-primary" /></div>}
                                                 <div className={cn(
-                                                    'relative group max-w-xl px-4 py-3', 
+                                                    'relative group min-w-0 flex-1 max-w-2xl px-4 py-3', 
                                                     message.role === 'user' 
                                                         ? 'bg-neutral-800 text-primary-foreground rounded-2xl' 
                                                         : 'text-foreground'
                                                 )}>
-                                                    {renderMessageContent(message.content)}
+                                                    <div className="whitespace-pre-wrap break-words overflow-hidden">
+                                                        {renderMessageContent(message.content)}
+                                                    </div>
                                                 </div>
                                            </div>
                                            {message.role === 'model' && message.content.followUpPrompts && message.content.followUpPrompts.length > 0 && index === messages.length - 1 && !isLoading && (
-                                                <div className="flex flex-col sm:flex-wrap gap-2 max-w-xl ml-14">
+                                                <div className="flex flex-col sm:flex-wrap gap-2 min-w-0 flex-1 max-w-2xl ml-14">
                                                   {message.content.followUpPrompts.map((prompt, i) => (
                                                       <Button
                                                           key={i}
                                                           variant="outline"
                                                           size="sm"
                                                           onClick={() => submitFollowUpPrompt(prompt)}
-                                                          className="text-xs h-auto py-1.5 px-3 w-full sm:w-auto"
+                                                          className="text-xs h-auto py-1.5 px-3 w-full sm:w-auto min-w-0"
                                                       >
-                                                          <Lightbulb className="h-3 w-3 mr-2" />
-                                                          <span className="truncate w-full sm:max-w-none">{prompt}</span>
+                                                          <Lightbulb className="h-3 w-3 mr-2 flex-shrink-0" />
+                                                          <span className="truncate w-full sm:max-w-none min-w-0">{prompt}</span>
                                                       </Button>
                                                   ))}
                                                 </div>
@@ -379,7 +381,7 @@ Ready to create some amazing content together? I'm here to help you shine even b
                                 {isLoading && (
                                     <div className="flex items-start gap-4 justify-start">
                                     <div className="p-2 rounded-full bg-primary/10 border border-primary/20 flex-shrink-0"><Bot className="w-6 h-6 text-primary" /></div>
-                                        <div className="max-w-md rounded-xl px-4 py-3 flex items-center">
+                                        <div className="min-w-0 flex-1 max-w-2xl rounded-xl px-4 py-3 flex items-center">
                                             <Loader2 className="h-5 w-5 animate-spin text-primary" />
                                         </div>
                                     </div>
