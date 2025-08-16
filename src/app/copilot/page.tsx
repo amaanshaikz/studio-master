@@ -697,14 +697,14 @@ export default function CopilotPage() {
                                             </div>
                                        </div>
                                        {message.role === 'model' && message.content.followUpPrompts && message.content.followUpPrompts.length > 0 && index === messages.length - 1 && !isLoading && (
-                                            <div className="flex flex-wrap gap-1.5 sm:gap-2 max-w-[calc(100vw-3rem)] sm:max-w-xl ml-8 sm:ml-14">
+                                            <div className="flex flex-col sm:flex-wrap gap-2 sm:gap-1.5 max-w-[calc(100vw-3rem)] sm:max-w-xl ml-8 sm:ml-14">
                                               {message.content.followUpPrompts.map((prompt, i) => (
                                                   <Button
                                                       key={i}
                                                       variant="outline"
                                                       size="sm"
                                                       onClick={() => submitFollowUpPrompt(prompt)}
-                                                      className="text-xs h-auto py-1.5 px-2 sm:px-3 min-h-[32px] sm:min-h-[36px]"
+                                                      className="text-xs h-auto py-1.5 px-2 sm:px-3 min-h-[32px] sm:min-h-[36px] w-full sm:w-auto"
                                                   >
                                                       <Lightbulb className="h-3 w-3 mr-1.5 sm:mr-2" />
                                                       <span className="truncate max-w-[120px] sm:max-w-none">{prompt}</span>

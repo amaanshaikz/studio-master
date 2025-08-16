@@ -358,14 +358,14 @@ Ready to create some amazing content together? I'm here to help you shine even b
                                                 </div>
                                            </div>
                                            {message.role === 'model' && message.content.followUpPrompts && message.content.followUpPrompts.length > 0 && index === messages.length - 1 && !isLoading && (
-                                                <div className="flex flex-wrap gap-2 max-w-xl ml-14">
+                                                <div className="flex flex-col sm:flex-wrap gap-2 max-w-xl ml-14">
                                                   {message.content.followUpPrompts.map((prompt, i) => (
                                                       <Button
                                                           key={i}
                                                           variant="outline"
                                                           size="sm"
                                                           onClick={() => submitFollowUpPrompt(prompt)}
-                                                          className="text-xs h-auto py-1.5 px-3"
+                                                          className="text-xs h-auto py-1.5 px-3 w-full sm:w-auto"
                                                       >
                                                           <Lightbulb className="h-3 w-3 mr-2" />
                                                           {prompt}

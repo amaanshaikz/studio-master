@@ -103,7 +103,7 @@ export default function PersonalizationOverlay({
               onValueChange={setSelectedRole}
               className="space-y-4"
             >
-              {/* Creator Option */}
+              {/* Creator Option - Highlighted */}
               <div className="relative">
                 <RadioGroupItem 
                   value="creator" 
@@ -112,14 +112,21 @@ export default function PersonalizationOverlay({
                 />
                 <Label 
                   htmlFor="creator" 
-                  className="flex items-center space-x-4 p-4 border-2 border-gray-700 rounded-lg cursor-pointer hover:border-primary/50 transition-colors peer-checked:border-primary peer-checked:bg-primary/10"
+                  className="relative flex items-center space-x-4 p-4 border-2 border-gray-700 rounded-lg cursor-pointer hover:border-primary/50 transition-colors peer-checked:border-primary peer-checked:bg-primary/10 group"
                 >
-                  <div className="flex items-center space-x-3 flex-1">
+                  {/* Glowing outline effect */}
+                  <div className="absolute -inset-1 bg-gradient-to-r from-primary to-accent rounded-lg blur-sm opacity-20 group-hover:opacity-30 transition-opacity"></div>
+                  <div className="relative flex items-center space-x-3 flex-1">
                     <div className="p-2 rounded-lg bg-blue-900/50 border border-blue-700/50">
                       <Video className="w-5 h-5 text-blue-400" />
                     </div>
-                    <div className="text-left">
-                      <div className="font-semibold text-white">Creator</div>
+                    <div className="text-left flex-1">
+                      <div className="flex items-center gap-2">
+                        <span className="font-semibold text-white">Creator</span>
+                        <span className="px-2 py-1 text-xs font-medium bg-gradient-to-r from-primary to-accent text-white rounded-full">
+                          Recommended
+                        </span>
+                      </div>
                       <div className="text-sm text-gray-400">
                         Content creators, influencers, and social media professionals
                       </div>
@@ -128,7 +135,7 @@ export default function PersonalizationOverlay({
                 </Label>
               </div>
 
-              {/* Individual Option */}
+              {/* Individual Option - Beta */}
               <div className="relative">
                 <RadioGroupItem 
                   value="individual" 
@@ -137,14 +144,19 @@ export default function PersonalizationOverlay({
                 />
                 <Label 
                   htmlFor="individual" 
-                  className="flex items-center space-x-4 p-4 border-2 border-gray-700 rounded-lg cursor-pointer hover:border-primary/50 transition-colors peer-checked:border-primary peer-checked:bg-primary/10"
+                  className="flex items-center space-x-4 p-4 border-2 border-dashed border-gray-600/50 rounded-lg cursor-pointer hover:border-gray-500/70 transition-colors peer-checked:border-primary peer-checked:bg-primary/10"
                 >
                   <div className="flex items-center space-x-3 flex-1">
                     <div className="p-2 rounded-lg bg-green-900/50 border border-green-700/50">
                       <User className="w-5 h-5 text-green-400" />
                     </div>
-                    <div className="text-left">
-                      <div className="font-semibold text-white">Individual</div>
+                    <div className="text-left flex-1">
+                      <div className="flex items-center gap-2">
+                        <span className="font-semibold text-white">Individual</span>
+                        <span className="px-2 py-1 text-xs font-medium bg-gray-600/50 text-gray-300 border border-gray-500/50 rounded-full">
+                          Beta
+                        </span>
+                      </div>
                       <div className="text-sm text-gray-400">
                         Personal users, professionals, and general productivity
                       </div>

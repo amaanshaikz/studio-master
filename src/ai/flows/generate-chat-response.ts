@@ -471,10 +471,10 @@ const generateChatResponseFlow = ai.defineFlow(
           if (!input.creatorProfile) {
             const creatorContext = await buildCreatorProfileContext();
             if (creatorContext && creatorContext !== "Creator profile unavailable.") {
-              enriched = {
+          enriched = {
                 ...enriched,
                 creatorProfile: creatorContext,
-              };
+          };
             }
           }
         }
