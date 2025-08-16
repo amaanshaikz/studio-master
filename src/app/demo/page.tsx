@@ -368,7 +368,7 @@ Ready to create some amazing content together? I'm here to help you shine even b
                                                           className="text-xs h-auto py-1.5 px-3 w-full sm:w-auto"
                                                       >
                                                           <Lightbulb className="h-3 w-3 mr-2" />
-                                                          {prompt}
+                                                          <span className="truncate w-full sm:max-w-none">{prompt}</span>
                                                       </Button>
                                                   ))}
                                                 </div>

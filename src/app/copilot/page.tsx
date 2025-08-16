@@ -707,7 +707,7 @@ export default function CopilotPage() {
                                                       className="text-xs h-auto py-1.5 px-2 sm:px-3 min-h-[32px] sm:min-h-[36px] w-full sm:w-auto"
                                                   >
                                                       <Lightbulb className="h-3 w-3 mr-1.5 sm:mr-2" />
-                                                      <span className="truncate max-w-[120px] sm:max-w-none">{prompt}</span>
+                                                      <span className="truncate w-full sm:max-w-none">{prompt}</span>
                                                   </Button>
                                               ))}
                                             </div>

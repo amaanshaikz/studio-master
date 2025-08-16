@@ -169,3 +169,42 @@ max-w-[calc(100vw-3rem)] sm:max-w-xl
 2. **`src/app/demo/page.tsx`**: Updated follow-up prompts layout
 
 The follow-up prompts are now fully optimized for mobile devices while maintaining the original desktop experience! 📱✨
+
+---
+
+## 🔧 **Text Truncation Fix - Additional Update**
+
+### **Issue Identified**
+- **Mobile Text Truncation**: Follow-up prompts were being truncated with ellipsis ("...") even when there was unused horizontal space
+- **Premature Truncation**: Text was limited to `max-w-[120px]` on mobile, causing unnecessary truncation
+- **Poor User Experience**: Users could only see partial text with blank space on the side
+
+### **Fix Applied**
+
+#### **Before (Problematic)**
+```tsx
+<span className="truncate max-w-[120px] sm:max-w-none">{prompt}</span>
+```
+
+#### **After (Fixed)**
+```tsx
+<span className="truncate w-full sm:max-w-none">{prompt}</span>
+```
+
+### **Key Changes**
+- ✅ **Full Width on Mobile**: Changed from `max-w-[120px]` to `w-full` on mobile
+- ✅ **Natural Text Expansion**: Text now uses full available horizontal space
+- ✅ **True Overflow Only**: Ellipsis only appears when text genuinely exceeds container width
+- ✅ **Desktop Unchanged**: Maintains `sm:max-w-none` for desktop behavior
+
+### **Files Updated**
+1. **`src/app/copilot/page.tsx`**: Fixed text truncation in follow-up prompts
+2. **`src/app/demo/page.tsx`**: Added consistent text handling with span wrapper
+
+### **Result**
+- ✅ **Mobile**: Text expands to full width, ellipsis only when truly needed
+- ✅ **Desktop**: No changes to existing truncation behavior
+- ✅ **Consistent**: Both pages now handle text truncation identically
+- ✅ **User Experience**: Full text visibility on mobile devices
+
+The follow-up prompts now provide optimal text display on all screen sizes! 📱✨
