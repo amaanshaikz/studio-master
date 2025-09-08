@@ -93,10 +93,10 @@ const contentTones = ["Funny", "Emotional", "Bold/Controversial", "Storytelling"
 
 const toolConfig = {
     chat: { label: 'Chat', icon: MessageSquare },
-    ideas: { label: 'Ideas', icon: Sparkles },
-    scripts: { label: 'Scripts', icon: FileText },
-    captions: { label: 'Captions', icon: Mic },
-    hashtags: { label: 'Hashtags', icon: Hash },
+    // ideas: { label: 'Ideas', icon: Sparkles },
+    // scripts: { label: 'Scripts', icon: FileText },
+    // captions: { label: 'Captions', icon: Mic },
+    // hashtags: { label: 'Hashtags', icon: Hash },
 };
 
 const Section = ({ children, className }: { children: React.ReactNode; className?: string }) => {
@@ -405,6 +405,41 @@ const messageToHistoryItem = (msg: Message) => {
     return { role: msg.role, content };
 };
 
+interface PromptCardProps {
+    icon: React.ReactNode;
+    title: string;
+    description: string;
+    prompt: string;
+    onClick: () => void;
+}
+
+const PromptCard = ({ icon, title, description, prompt, onClick }: PromptCardProps) => {
+    return (
+        <button
+            onClick={onClick}
+            className="group relative p-4 rounded-xl bg-card/60 backdrop-blur-sm border border-border/50 hover:border-primary/30 hover:bg-card/80 transition-all duration-300 hover:shadow-lg hover:shadow-primary/5 text-left w-full"
+        >
+            <div className="flex items-start gap-3">
+                <div className="p-2 rounded-lg bg-primary/10 border border-primary/20 group-hover:bg-primary/20 group-hover:scale-110 transition-all duration-300">
+                    {icon}
+                </div>
+                <div className="flex-1 min-w-0">
+                    <h3 className="font-semibold text-foreground text-sm sm:text-base mb-1 group-hover:text-primary transition-colors duration-300">
+                        {title}
+                    </h3>
+                    <p className="text-xs sm:text-sm text-muted-foreground group-hover:text-foreground/80 transition-colors duration-300">
+                        {description}
+                    </p>
+                    <div className="mt-2 text-xs text-primary/70 group-hover:text-primary transition-colors duration-300">
+                        "{prompt}"
+                    </div>
+                </div>
+            </div>
+            <div className="absolute inset-0 rounded-xl bg-gradient-to-r from-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none" />
+        </button>
+    );
+};
+
 export default function CopilotPage() {
     const [activeTool, setActiveTool] = useState<Tool>('chat');
     const [messages, setMessages] = useState<Message[]>([]);
@@ -657,16 +692,14 @@ export default function CopilotPage() {
         <FormProvider {...form}>
             <div className="flex-1 grid grid-cols-1 lg:grid-cols-3 gap-8 container mx-auto px-2 sm:px-4 py-4 sm:py-8 md:py-12 bg-black min-h-screen">
                 
-                {activeTool !== 'chat' && (
+                {/* Desktop sidebar commented out - only chat functionality available */}
+                {/* {activeTool !== 'chat' && (
                   <div className="hidden lg:block lg:col-span-1">
                       <AdvancedOptions />
                   </div>
-                )}
+                )} */}
                 
-                <div className={cn(
-                    "flex flex-col h-[calc(100vh-4rem)] sm:h-[calc(100vh-5rem)] md:h-[calc(100vh-theme(height.14)-100px)]", 
-                    activeTool === 'chat' ? 'lg:col-span-3' : 'lg:col-span-2'
-                )}>
+                <div className="flex flex-col h-[calc(100vh-4rem)] sm:h-[calc(100vh-5rem)] md:h-[calc(100vh-theme(height.14)-100px)] lg:col-span-3">
                     <ScrollArea className="flex-grow pr-2 sm:pr-4 overflow-y-auto" ref={scrollAreaRef}>
                         <div className="space-y-4 sm:space-y-6 max-w-3xl mx-auto px-2 sm:px-0">
                             {messages.length === 0 ? (
@@ -678,7 +711,39 @@ export default function CopilotPage() {
                                         <BrainCircuit className="h-8 w-8 sm:h-12 sm:w-12 text-primary" />
                                     </div>
                                     <h2 className="text-xl sm:text-2xl font-bold text-foreground">Personalized AI Content Copilot</h2>
-                                    <p className="max-w-md text-sm sm:text-base px-4 text-center">Your all-in-one creative copilot — tailored to your style, your audience, your growth.</p>
+                                    <p className="max-w-md text-sm sm:text-base px-4 text-center mb-8">Your all-in-one creative copilot — tailored to your style, your audience, your growth.</p>
+                                    
+                                    {/* Prompt Containers */}
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 w-full max-w-2xl px-4">
+                                        <PromptCard
+                                            icon={<Lightbulb className="h-5 w-5" />}
+                                            title="Content Ideas"
+                                            description="Get fresh content ideas tailored to your niche"
+                                            prompt="Help me brainstorm content ideas for my audience"
+                                            onClick={() => submitFollowUpPrompt("Help me brainstorm content ideas for my audience")}
+                                        />
+                                        <PromptCard
+                                            icon={<FileText className="h-5 w-5" />}
+                                            title="Script Writing"
+                                            description="Create engaging scripts for your videos"
+                                            prompt="Write a script for a 30-second Instagram reel about"
+                                            onClick={() => submitFollowUpPrompt("Write a script for a 30-second Instagram reel about")}
+                                        />
+                                        <PromptCard
+                                            icon={<Hash className="h-5 w-5" />}
+                                            title="Hashtag Strategy"
+                                            description="Find the perfect hashtags to boost reach"
+                                            prompt="Suggest trending hashtags for my content"
+                                            onClick={() => submitFollowUpPrompt("Suggest trending hashtags for my content")}
+                                        />
+                                        <PromptCard
+                                            icon={<Mic className="h-5 w-5" />}
+                                            title="Caption Writing"
+                                            description="Craft compelling captions that drive engagement"
+                                            prompt="Write an engaging caption for my post about"
+                                            onClick={() => submitFollowUpPrompt("Write an engaging caption for my post about")}
+                                        />
+                                    </div>
                                 </div>
                             ) : (
                                 messages.map((message, index) => (
@@ -727,11 +792,12 @@ export default function CopilotPage() {
                     </ScrollArea>
                     
                     <div className="mt-auto pt-2 sm:pt-4 px-2 sm:px-0">
-                        {activeTool !== 'chat' && (
+                        {/* Advanced options commented out - only chat functionality available */}
+                        {/* {activeTool !== 'chat' && (
                             <div className="lg:hidden">
                                 <AdvancedOptions />
                             </div>
-                        )}
+                        )} */}
                         <div className="w-full max-w-3xl mx-auto">
                             <form onSubmit={form.handleSubmit(handleToolSubmit)}>
                                 <div className="relative">
@@ -801,7 +867,8 @@ export default function CopilotPage() {
                                 </div>
                             </form>
                             
-                            <div className="mt-2 sm:mt-3 flex items-center justify-center gap-1.5 sm:gap-2 px-2 sm:px-0">
+                            {/* Tab navigation commented out - only chat functionality available */}
+                            {/* <div className="mt-2 sm:mt-3 flex items-center justify-center gap-1.5 sm:gap-2 px-2 sm:px-0">
                                 <div className="bg-card/60 backdrop-blur-sm border border-border/50 rounded-lg p-1 flex-grow flex items-center justify-center gap-0.5 sm:gap-1">
                                     {Object.keys(toolConfig).map((key) => {
                                         const toolKey = key as Tool;
@@ -832,7 +899,7 @@ export default function CopilotPage() {
                                         )
                                     })}
                                 </div>
-                            </div>
+                            </div> */}
                         </div>
                     </div>
                 </div>

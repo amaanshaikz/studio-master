@@ -13,7 +13,7 @@ import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
 import { buildCreatorProfileContext } from '@/ai/creatorProfileContext';
 import { buildUserProfileContext } from '@/ai/profileContext';
-// import { generateWithVertex, isVertexAIConfigured } from '@/ai/vertex-ai';
+import { generateWithVertex, isVertexAIConfigured } from '@/ai/vertex-ai';
 import { auth } from '@/lib/auth';
 import { createClient } from '@supabase/supabase-js';
 
@@ -105,13 +105,19 @@ Use friendly prompts like: "Just to clarify — do you mean X or Y?" or "Should 
 ---
 
 ### Output Structure (required)
-When asked for content ideas, return **concise, bullet / numbered lists**. For each item include:
-- **Title / Hook (1 line)**  
-- **Short Script / Key Points (3–6 lines)**  
-- **Visual / Editing Notes (1–2 lines)**  
-- **Hashtags (comma-separated)**  
-- **CTA (one-line)**  
-- **Effort / ROI (Low/Med/High — 1 sentence)**
+When asked for content ideas:
+1. First, return 3 best next viral content ideas tailored to the user. 
+   - Show them only as a concise numbered list with just the **Title / Hook (1 line each)**.
+2. Then, from these 3 ideas, pick the single "Best Recommended Idea for You".
+3. For this chosen idea, provide the full breakdown:
+   - Title / Hook (1 line)
+   - Short Script / Key Points (3–6 lines)
+   - Visual / Editing Notes (1–2 lines)
+   - Hashtags (comma-separated)
+   - CTA (one-line)
+   - Effort / ROI (Low/Med/High — 1 sentence)
+
+Keep the response scannable and formatted in clean bullets.
 
 Always finish every reply with **two short follow-up prompt suggestions** the creator can pick from (written from the creator's perspective), for example:
 
@@ -322,7 +328,31 @@ async function getUserRole(userId: string): Promise<string | null> {
  * Generate response using role-based prompts
  */
 async function generateResponseWithBackend(enrichedInput: GenerateChatResponseInput, userRole?: string): Promise<GenerateChatResponseOutput> {
-  // Always use Gemini API
+  // Check if Vertex AI is configured
+  if (isVertexAIConfigured()) {
+    console.log('Using Vertex AI');
+    
+    try {
+      // Create prompt text for Vertex AI
+      const promptText = createPromptText(enrichedInput, userRole);
+      
+      // Generate response using Vertex AI
+      const response = await generateWithVertex(promptText);
+      
+      // Parse the response to extract follow-up prompts and clean the response
+      const { prompts: followUpPrompts, cleanResponse } = extractFollowUpPrompts(response);
+      
+      return {
+        response: cleanResponse,
+        followUpPrompts: followUpPrompts
+      };
+    } catch (error) {
+      console.error('Vertex AI generation failed, falling back to Gemini:', error);
+      // Fall back to Gemini API
+    }
+  }
+  
+  // Use Gemini API (either as primary or fallback)
   console.log('Using Gemini API');
   
   // Use role-based prompt selection
@@ -339,24 +369,143 @@ async function generateResponseWithBackend(enrichedInput: GenerateChatResponseIn
 }
 
 /**
- * Create prompt text manually for Vertex AI
- * NOTE: This function is commented out as Vertex AI integration is disabled
+ * Extract follow-up prompts from the response text and clean the response
  */
-/*
-function createPromptText(input: GenerateChatResponseInput): string {
+function extractFollowUpPrompts(response: string): { prompts: string[], cleanResponse: string } {
+  const followUpPrompts: string[] = [];
+  let cleanResponse = response;
+  
+  // Look for the "Follow-up prompts:" section
+  const followUpMatch = response.match(/\*\*Follow-up prompts:\*\*\s*\n((?:- .+\n?)+)/);
+  
+  if (followUpMatch) {
+    const promptsText = followUpMatch[1];
+    const prompts = promptsText
+      .split('\n')
+      .map(line => line.replace(/^-\s*/, '').trim())
+      .filter(line => line.length > 0);
+    
+    followUpPrompts.push(...prompts);
+    
+    // Remove the entire follow-up prompts section from the response
+    cleanResponse = response.replace(/\*\*Follow-up prompts:\*\*\s*\n((?:- .+\n?)+)/, '').trim();
+  }
+  
+  // If no follow-up prompts found, provide default ones
+  if (followUpPrompts.length === 0) {
+    followUpPrompts.push(
+      "Tell me more about this topic",
+      "Give me some examples"
+    );
+  }
+  
+  return {
+    prompts: followUpPrompts.slice(0, 2), // Ensure we only return 2 prompts
+    cleanResponse: cleanResponse
+  };
+}
+
+/**
+ * Create prompt text manually for Vertex AI
+ * Supports both creator and individual user types
+ */
+function createPromptText(input: GenerateChatResponseInput, userRole?: string): string {
   const historyText = input.history && input.history.length > 0 
     ? `\n**Conversation History:**\nUse this history to avoid repeating info or asking again:\n${input.history.map(h => `- **${h.role}**: ${h.content}`).join('\n')}\n---\n`
     : '';
 
   const documentText = input.documentContent 
-    ? `\n**Context Document:**\nUse the content below as relevant creator input or background:\n---\n${input.documentContent}\n---\n`
+    ? `\n**Context Document:**\nUse the content below as relevant input or background:\n---\n${input.documentContent}\n---\n`
     : '';
 
-  const creatorProfileText = input.creatorProfile 
-    ? `\n### Creator Profile (injected from Supabase)\nCreator Profile:\n\`\`\`\n${input.creatorProfile}\n\`\`\`\nUse this creator profile as the single source of truth for personalization. If the profile is present, assume it is current and authoritative. If missing, respond with a helpful fallback request for the creator to complete their profile.\n`
-    : '\n### Creator Profile (injected from Supabase)\nCreator profile unavailable — ask the creator to complete their onboarding form (name, niche, audience, platforms, goals).\n';
+  if (userRole === 'individual') {
+    // Individual user prompt
+    const individualProfileText = input.individualProfile 
+      ? `\n### Individual Profile (injected from Supabase)\nIndividual Profile:\n\`\`\`\n${input.individualProfile}\n\`\`\`\nUse this individual profile as the single source of truth for personalization. If the profile is present, assume it is current and authoritative. If missing, respond with a helpful fallback request for the individual to complete their profile.\n`
+      : '\n### Individual Profile (injected from Supabase)\nIndividual profile unavailable — ask the individual to complete their onboarding form (name, goals, preferences, etc.).\n';
 
-  return `You are CreateX AI, the Personalized AI Content Copilot for a specific content creator. Your role is to deeply understand their profile, brand, audience, goals, workflow, and preferences — and use this understanding to generate highly tailored content ideas, scripts, strategies, and actionable growth advice that align with their unique style, audience, and objectives.
+    return `You are CreateX AI, the Personalized AI Life Copilot for an individual. Your role is to deeply understand their personal profile, goals, preferences, and life circumstances — and use this understanding to provide highly tailored advice, suggestions, and support for their daily life, personal growth, hobbies, productivity, and overall well-being.
+
+---  
+${individualProfileText}
+---  
+### Individual Data Fields (available when profile present)
+Full Name, Nickname, Age, Location, Timezone, Languages, Communication Style, Motivation, Personality Type, Productive Time, Productivity Systems, Focus Areas, Profession, Career/Study Goals, Work Challenges, Tools Used, AI Support Preferences, AI Boundaries.
+
+---
+
+### Behavior Rules (Fundamental)
+1. **Think like a trusted life coach and productivity expert.** Understand personal development, time management, and life optimization.  
+2. **Never give generic advice.** Every suggestion must reflect the individual's personality, goals, communication style, and current circumstances.  
+3. **Be context-aware.** Consider their profession, work challenges, productivity systems, and personal preferences.  
+4. **Include actionable details:** specific steps, time estimates, tools recommendations, and follow-up actions.  
+5. **Prioritize well-being.** Balance productivity with mental health, work-life balance, and personal fulfillment.  
+6. **Respect boundaries.** Avoid topics or suggestions that the individual has explicitly marked as off-limits.  
+7. **Be encouraging and supportive.** Maintain a positive, motivating tone while being realistic.
+
+---
+
+### AI Behavior Phases (how to operate)
+
+**Phase 1 — Understanding Mode (clarify)**  
+- If the individual's query lacks clarity, ask gentle, clarifying questions.  
+- Mirror their concerns and propose 1–2 interpretation options before providing detailed advice.  
+Use supportive prompts like: "I want to make sure I understand — are you looking for X or Y?" or "Should I focus on immediate solutions or long-term strategies?"
+
+**Phase 2 — Supportive Mode (deliver)**  
+- When intent is clear, provide personalized, actionable advice and strategies.  
+- Anticipate follow-ups and provide next steps the individual can implement immediately.
+
+---
+
+### Core Capabilities (deliverables you should produce)
+- **Productivity advice:** Time management strategies, workflow optimization, tool recommendations.  
+- **Personal development:** Goal setting, habit formation, skill development, motivation techniques.  
+- **Life optimization:** Work-life balance, stress management, health and wellness suggestions.  
+- **Problem-solving:** Creative solutions for personal and professional challenges.  
+- **Learning guidance:** Study strategies, skill acquisition, knowledge organization.  
+- **Communication support:** Writing assistance, presentation help, interpersonal advice.  
+- **Hobby and interest support:** Recommendations, resources, and guidance for personal interests.
+
+---
+
+### Output Structure (required)
+When providing advice or suggestions, return **clear, actionable recommendations**. For each suggestion include:
+- **Main Recommendation (1-2 lines)**  
+- **Why This Works (1-2 lines)**  
+- **Specific Steps (3-5 bullet points)**  
+- **Time Estimate (realistic timeframe)**  
+- **Tools/Resources (if applicable)**  
+- **Follow-up Actions (what to do next)**
+
+Always finish every reply with **two short follow-up prompt suggestions** the individual can pick from (written from their perspective), for example:
+- "Help me create a daily routine that works for my schedule"  
+- "Give me strategies to stay motivated when I'm feeling stuck"
+
+---
+
+### Final Instruction (tone & identity)
+Always act as if you are a **trusted life coach and productivity expert** who deeply understands the individual's unique situation. Your outputs should feel like they come from someone who has been supporting their personal growth journey: empathetic, practical, and immediately actionable. Help them achieve their goals while maintaining balance and well-being.
+
+### IMPORTANT: Output Format
+After providing your main response, ALWAYS end with exactly this format:
+
+**Follow-up prompts:**
+- [First follow-up suggestion]
+- [Second follow-up suggestion]
+
+---  
+
+${historyText}${documentText}
+**Individual Query:**  
+${input.query}`;
+  } else {
+    // Creator user prompt (default)
+    const creatorProfileText = input.creatorProfile 
+      ? `\n### Creator Profile (injected from Supabase)\nCreator Profile:\n\`\`\`\n${input.creatorProfile}\n\`\`\`\nUse this creator profile as the single source of truth for personalization. If the profile is present, assume it is current and authoritative. If missing, respond with a helpful fallback request for the creator to complete their profile.\n`
+      : '\n### Creator Profile (injected from Supabase)\nCreator profile unavailable — ask the creator to complete their onboarding form (name, niche, audience, platforms, goals).\n';
+
+    return `You are CreateX AI, the Personalized AI Content Copilot for a specific content creator. Your role is to deeply understand their profile, brand, audience, goals, workflow, and preferences — and use this understanding to generate highly tailored content ideas, scripts, strategies, and actionable growth advice that align with their unique style, audience, and objectives.
 
 ---  
 ${creatorProfileText}
@@ -401,18 +550,26 @@ Use friendly prompts like: "Just to clarify — do you mean X or Y?" or "Should 
 
 ---
 
-### Output Structure (required)
-When asked for content ideas, return **concise, bullet / numbered lists**. For each item include:
-- **Title / Hook (1 line)**  
-- **Short Script / Key Points (3–6 lines)**  
-- **Visual / Editing Notes (1–2 lines)**  
-- **Hashtags (comma-separated)**  
-- **CTA (one-line)**  
-- **Effort / ROI (Low/Med/High — 1 sentence)**
+### Conditional Structure (only if asked for content ideas)
+If — and only if — the creator explicitly asks for new content ideas:  
+1. First, return 3 best next viral content ideas tailored to the user. 
+   - Show them only as a concise numbered list with just the **Title / Hook (1 line each)**.
+2. Then, from these 3 ideas, pick the single "Best Recommended Idea for You".
+3. For this chosen idea, provide the full breakdown:
+   - Title / Hook (1 line)
+   - Short Script / Key Points (3–6 lines)
+   - Visual / Editing Notes (1–2 lines)
+   - Hashtags (comma-separated)
+   - CTA (one-line)
+   - Effort / ROI (Low/Med/High — 1 sentence)
+
+Keep the response scannable and formatted in clean bullet / numbered lists.
 
 Always finish every reply with **two short follow-up prompt suggestions** the creator can pick from (written from the creator's perspective), for example:
-- "Plan a content calendar for next month"  
-- "Give me A/B thumbnail variations for idea #2"
+
+**Follow-up prompts:**
+- Plan a content calendar for next month  
+- Give me A/B thumbnail variations for idea #2
 
 ---
 
@@ -431,8 +588,8 @@ After providing your main response, ALWAYS end with exactly this format:
 ${historyText}${documentText}
 **Creator Query:**  
 ${input.query}`;
+  }
 }
-*/
 
 const generateChatResponseFlow = ai.defineFlow(
   {

@@ -111,6 +111,9 @@ export default function Header() {
                  <Button asChild className="mt-6 bg-gradient-to-r from-primary to-accent text-white" onClick={() => setMenuOpen(false)}>
                   <Link href="/copilot">Try AI Copilot</Link>
                 </Button>
+                <Button asChild className="mt-3 bg-black/20 border border-gray-600/30 text-white hover:bg-gradient-to-r hover:from-primary hover:to-accent hover:border-transparent transition-all duration-300" onClick={() => setMenuOpen(false)}>
+                  <Link href="/engagement-predictor">Engagement Predictor</Link>
+                </Button>
                 {status === 'unauthenticated' && (
                   <div className="mt-4 flex flex-col space-y-2">
                      <Button asChild variant="ghost" onClick={() => setMenuOpen(false)}>
@@ -128,6 +131,9 @@ export default function Header() {
           <div className="hidden md:flex items-center gap-2">
              <Button asChild size="sm" className="bg-gradient-to-r from-primary to-accent text-white">
                 <Link href="/copilot">Try AI Copilot</Link>
+            </Button>
+            <Button asChild size="sm" className="bg-black/20 border border-gray-600/30 text-white hover:bg-gradient-to-r hover:from-primary hover:to-accent hover:border-transparent transition-all duration-300">
+                <Link href="/engagement-predictor">Engagement Predictor</Link>
             </Button>
             {status === 'loading' ? (
               <div className="w-8 h-8 animate-pulse bg-gray-200 rounded-full" />
