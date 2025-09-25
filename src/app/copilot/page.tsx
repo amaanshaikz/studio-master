@@ -417,20 +417,20 @@ const PromptCard = ({ icon, title, description, prompt, onClick }: PromptCardPro
     return (
         <button
             onClick={onClick}
-            className="group relative p-4 rounded-xl bg-card/60 backdrop-blur-sm border border-border/50 hover:border-primary/30 hover:bg-card/80 transition-all duration-300 hover:shadow-lg hover:shadow-primary/5 text-left w-full"
+            className="group relative p-3 sm:p-4 rounded-xl bg-card/60 backdrop-blur-sm border border-border/50 hover:border-primary/30 hover:bg-card/80 transition-all duration-300 hover:shadow-lg hover:shadow-primary/5 text-left w-full"
         >
-            <div className="flex items-start gap-3">
-                <div className="p-2 rounded-lg bg-primary/10 border border-primary/20 group-hover:bg-primary/20 group-hover:scale-110 transition-all duration-300">
+            <div className="flex items-start gap-2 sm:gap-3">
+                <div className="p-1.5 sm:p-2 rounded-lg bg-primary/10 border border-primary/20 group-hover:bg-primary/20 group-hover:scale-110 transition-all duration-300 flex-shrink-0">
                     {icon}
                 </div>
                 <div className="flex-1 min-w-0">
-                    <h3 className="font-semibold text-foreground text-sm sm:text-base mb-1 group-hover:text-primary transition-colors duration-300">
+                    <h3 className="font-semibold text-foreground text-xs sm:text-sm md:text-base mb-1 group-hover:text-primary transition-colors duration-300 leading-tight">
                         {title}
                     </h3>
-                    <p className="text-xs sm:text-sm text-muted-foreground group-hover:text-foreground/80 transition-colors duration-300">
+                    <p className="text-xs sm:text-sm text-muted-foreground group-hover:text-foreground/80 transition-colors duration-300 leading-relaxed">
                         {description}
                     </p>
-                    <div className="mt-2 text-xs text-primary/70 group-hover:text-primary transition-colors duration-300">
+                    <div className="mt-1.5 sm:mt-2 text-xs text-primary/70 group-hover:text-primary transition-colors duration-300 leading-relaxed">
                         "{prompt}"
                     </div>
                 </div>
@@ -714,30 +714,30 @@ export default function CopilotPage() {
                                     <p className="max-w-md text-sm sm:text-base px-4 text-center mb-8">Your all-in-one creative copilot — tailored to your style, your audience, your growth.</p>
                                     
                                     {/* Prompt Containers */}
-                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 w-full max-w-2xl px-4">
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-3 md:gap-4 w-full max-w-2xl px-2 sm:px-4">
                                         <PromptCard
-                                            icon={<Lightbulb className="h-5 w-5" />}
+                                            icon={<Lightbulb className="h-4 w-4 sm:h-5 sm:w-5" />}
                                             title="Content Ideas"
                                             description="Get fresh content ideas tailored to your niche"
                                             prompt="Help me brainstorm content ideas for my audience"
                                             onClick={() => submitFollowUpPrompt("Help me brainstorm content ideas for my audience")}
                                         />
                                         <PromptCard
-                                            icon={<FileText className="h-5 w-5" />}
+                                            icon={<FileText className="h-4 w-4 sm:h-5 sm:w-5" />}
                                             title="Script Writing"
                                             description="Create engaging scripts for your videos"
                                             prompt="Write a script for a 30-second Instagram reel about"
                                             onClick={() => submitFollowUpPrompt("Write a script for a 30-second Instagram reel about")}
                                         />
                                         <PromptCard
-                                            icon={<Hash className="h-5 w-5" />}
+                                            icon={<Hash className="h-4 w-4 sm:h-5 sm:w-5" />}
                                             title="Hashtag Strategy"
                                             description="Find the perfect hashtags to boost reach"
                                             prompt="Suggest trending hashtags for my content"
                                             onClick={() => submitFollowUpPrompt("Suggest trending hashtags for my content")}
                                         />
                                         <PromptCard
-                                            icon={<Mic className="h-5 w-5" />}
+                                            icon={<Mic className="h-4 w-4 sm:h-5 sm:w-5" />}
                                             title="Caption Writing"
                                             description="Craft compelling captions that drive engagement"
                                             prompt="Write an engaging caption for my post about"

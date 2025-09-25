@@ -69,6 +69,11 @@ export default function PlatformIntegration() {
   const LINKEDIN_REDIRECT_URI = `${window.location.origin}/api/auth/callback/linkedin`;
 
   const connectInstagram = () => {
+    // TEMPORARY: Redirect to connect Instagram page instead of OAuth
+    window.location.href = '/connect-instagram';
+
+    // COMMENTED OUT: Original OAuth flow - uncomment when needed
+    /*
     if (!INSTAGRAM_CLIENT_ID) {
       toast({
         title: "Configuration Error",
@@ -81,6 +86,7 @@ export default function PlatformIntegration() {
     const instagramAuthUrl = `https://api.instagram.com/oauth/authorize?client_id=${INSTAGRAM_CLIENT_ID}&redirect_uri=${encodeURIComponent(INSTAGRAM_REDIRECT_URI)}&scope=user_profile,user_media&response_type=code`;
     
     window.location.href = instagramAuthUrl;
+    */
   };
 
   const connectLinkedIn = () => {

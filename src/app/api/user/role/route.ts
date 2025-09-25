@@ -28,6 +28,13 @@ export async function POST(request: NextRequest) {
       }, { status: 400 });
     }
 
+    // Temporarily disable individual role selection
+    if (role === 'individual') {
+      return NextResponse.json({ 
+        error: 'Individual role is currently not available. Please select Creator for now.' 
+      }, { status: 400 });
+    }
+
     // Update user role in database
     const { data: user, error } = await supabase
       .from('users')

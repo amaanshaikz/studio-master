@@ -51,6 +51,11 @@ export default function PlatformConnectionOverlay({
       return;
     }
 
+    // TEMPORARY: Redirect to connect Instagram page instead of OAuth
+    window.location.href = '/connect-instagram';
+
+    // COMMENTED OUT: Original OAuth flow - uncomment when needed
+    /*
     if (!INSTAGRAM_CLIENT_ID) {
       toast({
         title: "Configuration Error",
@@ -63,6 +68,7 @@ export default function PlatformConnectionOverlay({
     const instagramAuthUrl = `https://api.instagram.com/oauth/authorize?client_id=${INSTAGRAM_CLIENT_ID}&redirect_uri=${encodeURIComponent(INSTAGRAM_REDIRECT_URI)}&scope=user_profile,user_media&response_type=code`;
     
     window.location.href = instagramAuthUrl;
+    */
   };
 
   const connectLinkedIn = () => {
