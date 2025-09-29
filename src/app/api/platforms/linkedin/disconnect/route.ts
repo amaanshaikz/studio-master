@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
 import { PlatformDatabase } from '@/lib/platform-database';
+export const runtime = 'nodejs';
 
 export async function POST(request: NextRequest) {
   try {
@@ -25,4 +26,4 @@ export async function POST(request: NextRequest) {
     console.error('LinkedIn disconnect error:', error);
     return NextResponse.json({ error: 'Failed to disconnect LinkedIn' }, { status: 500 });
   }
-} 
+}

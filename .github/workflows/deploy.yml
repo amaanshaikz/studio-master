@@ -1,0 +1,66 @@
+run name: Deploy to Google Cloud Run
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+env:
+  PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
+  SERVICE_NAME: nextjs-app
+  REGION: us-central1
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    
+    permissions:
+      contents: read
+      id-token: write
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+
+    - name: Google Auth
+      id: auth
+      uses: google-github-actions/auth@v2
+      with:
+        credentials_json: ${{ secrets.GCP_SA_KEY }}
+
+    - name: Set up Cloud SDK
+      uses: google-github-actions/setup-gcloud@v2
+
+    - name: Configure Docker
+      run: gcloud auth configure-docker
+
+    - name: Build and Push
+      run: |
+        # Set build-time environment variables to prevent build failures
+        export NEXTAUTH_SECRET="dummy-secret-for-build"
+        export NEXTAUTH_URL="http://localhost:3000"
+        export DATABASE_URL="dummy-database-url"
+        export SUPABASE_URL="dummy-supabase-url"
+        export SUPABASE_ANON_KEY="dummy-supabase-key"
+        export GOOGLE_CLIENT_ID="dummy-google-client-id"
+        export GOOGLE_CLIENT_SECRET="dummy-google-client-secret"
+        export INSTAGRAM_CLIENT_ID="dummy-instagram-client-id"
+        export INSTAGRAM_CLIENT_SECRET="dummy-instagram-client-secret"
+        export LINKEDIN_CLIENT_ID="dummy-linkedin-client-id"
+        export LINKEDIN_CLIENT_SECRET="dummy-linkedin-client-secret"
+        
+        docker build -t gcr.io/$PROJECT_ID/$SERVICE_NAME:$GITHUB_SHA .
+        docker push gcr.io/$PROJECT_ID/$SERVICE_NAME:$GITHUB_SHA
+
+    - name: Deploy to Cloud Run
+      id: deploy
+      uses: google-github-actions/deploy-cloudrun@v2
+      with:
+        service: $SERVICE_NAME
+        region: $REGION
+        image: gcr.io/$PROJECT_ID/$SERVICE_NAME:$GITHUB_SHA
+        flags: '--memory=1Gi --cpu=1 --min-instances=0 --max-instances=10 --port=8080 --allow-unauthenticated'
+
+    - name: Show Output
+      run: echo ${{ steps.deploy.outputs.url }}

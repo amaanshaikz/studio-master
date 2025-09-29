@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { isVertexAIConfigured, generateWithVertex, generateWithVertexMultimodal } from '@/ai/vertex-ai';
-import { buildCreatorProfileContext } from '@/ai/creatorProfileContext';
+import { buildCreatorProfileContext, buildInstagramCreatorIntelligenceContext } from '@/ai/creatorProfileContext';
 import { auth } from '@/lib/auth';
 
 export const runtime = 'nodejs';
@@ -49,11 +49,43 @@ export async function POST(req: NextRequest) {
             console.error('Error loading creator profile:', error);
             creatorProfile = "Creator profile unavailable.";
         }
+
+        // Fetch Instagram Creator Intelligence data for enhanced personalization
+        let instagramIntelligence: string;
+        try {
+            instagramIntelligence = await buildInstagramCreatorIntelligenceContext();
+            console.log('Instagram Creator Intelligence loaded for user:', session.user.id);
+            console.log('Intelligence data length:', instagramIntelligence.length);
+            console.log('Intelligence preview:', instagramIntelligence.substring(0, 200) + '...');
+        } catch (error) {
+            console.error('Error loading Instagram Creator Intelligence:', error);
+            instagramIntelligence = "Instagram Creator Intelligence unavailable.";
+        }
+        
+        // Check if Instagram Intelligence is available, if not use creator profile as fallback
+        const hasInstagramIntelligence = instagramIntelligence !== "Instagram Creator Intelligence unavailable." && 
+                                       instagramIntelligence.length > 100 && 
+                                       !instagramIntelligence.includes('Instagram Creator Intelligence profile unavailable');
+        
+        if (!hasInstagramIntelligence) {
+            console.log('⚠️ [VIDEO ANALYSIS] Instagram Intelligence not available, using creator profile as fallback');
+            if (creatorProfile && creatorProfile !== "Creator profile unavailable." && creatorProfile.length > 100) {
+                instagramIntelligence = `**CREATOR PROFILE FALLBACK (Instagram Intelligence Unavailable):**\n\n${creatorProfile}\n\n*Note: This is basic creator profile data. For enhanced Instagram-specific insights, complete your Instagram connection and analysis.*`;
+            } else {
+                instagramIntelligence = "**CREATOR PROFILE FALLBACK:**\n\nCreator profile unavailable. Please complete your creator onboarding to get personalized assistance.\n\n*Note: For enhanced Instagram-specific insights, complete your Instagram connection and analysis.*";
+            }
+        }
         
         // Validate profile data for personalization
         const hasProfileData = creatorProfile !== "Creator profile unavailable." && 
                               creatorProfile.length > 100 && 
                               !creatorProfile.includes('NOTE: Creator profile setup incomplete');
+        
+        // Check if we have Instagram Intelligence (not fallback)
+        const hasRealInstagramIntelligence = instagramIntelligence !== "Instagram Creator Intelligence unavailable." && 
+                                           instagramIntelligence.length > 100 && 
+                                           !instagramIntelligence.includes('Instagram Creator Intelligence profile unavailable') &&
+                                           !instagramIntelligence.includes('CREATOR PROFILE FALLBACK');
         
         if (!hasProfileData) {
             console.warn('⚠️ Limited creator profile data - analysis may be less personalized');
@@ -63,6 +95,13 @@ export async function POST(req: NextRequest) {
             console.warn('Contains "incomplete":', creatorProfile.includes('incomplete'));
         } else {
             console.log('✅ Rich creator profile available for personalized analysis');
+        }
+
+        if (!hasRealInstagramIntelligence) {
+            console.warn('⚠️ Using creator profile fallback instead of Instagram Creator Intelligence');
+            console.log('Fallback content preview:', instagramIntelligence.substring(0, 200) + '...');
+        } else {
+            console.log('✅ Rich Instagram Creator Intelligence available for enhanced personalization');
         }
 
         console.log('Video analysis request for file:', file.name, 'Size:', file.size, 'Type:', file.type);
@@ -83,7 +122,10 @@ export async function POST(req: NextRequest) {
 CREATOR PROFILE CONTEXT:
 ${creatorProfile}
 
-CRITICAL: This creator has a specific niche, audience, and performance history. ALL predictions must be calibrated to THEIR specific data, not generic industry averages.
+INSTAGRAM CREATOR INTELLIGENCE:
+${instagramIntelligence}
+
+CRITICAL: This creator has a specific niche, audience, and performance history. ALL predictions must be calibrated to THEIR specific data, not generic industry averages. Use the Instagram Creator Intelligence data to provide hyper-personalized insights based on their proven content patterns, audience preferences, and performance history.
 
 PERSONALIZED ANALYSIS INSTRUCTIONS:
 1. **VISUAL CONTENT**: Analyze what you actually see in the video frames
@@ -92,22 +134,29 @@ PERSONALIZED ANALYSIS INSTRUCTIONS:
 4. **ACTIVITY**: Describe what people/objects are doing
 5. **SETTING**: Identify the environment/background
 6. **QUALITY**: Assess video quality, resolution, stability
-7. **NICHE ALIGNMENT**: Compare content to creator's specific niche and target audience
+7. **NICHE ALIGNMENT**: Compare content to creator's specific niche and target audience from Instagram Intelligence
 8. **PERFORMANCE CALIBRATION**: Use creator's follower count and average views for realistic predictions
+9. **BRAND CONSISTENCY**: Compare visual aesthetics to creator's established brand style from Instagram Intelligence
+10. **AUDIENCE RESONANCE**: Assess how well content matches creator's actual audience demographics and interests
+11. **CONTENT THEME ALIGNMENT**: Compare to creator's proven content themes and successful patterns
+12. **ENGAGEMENT PATTERNS**: Use creator's historical engagement data for realistic predictions
 
 MANDATORY PERSONALIZATION REQUIREMENTS:
-- Virality Score: Base on creator's niche trends and audience behavior, NOT generic viral content
-- Relatability: Score based on how well content matches creator's target audience demographics
-- Niche Alignment: Assess how well content aligns with creator's specific niche and target audience
-- Visual Appeal: Assess against creator's typical content style and brand aesthetic
-- Average View Range: MUST be realistic based on creator's follower count and historical performance
-- Engagement %: Predict based on creator's audience engagement patterns, not platform averages
-- Aesthetics Score: Compare to creator's typical production quality and style
+- Virality Score: Base on creator's niche trends, audience behavior, and proven viral content patterns from Instagram Intelligence
+- Relatability: Score based on how well content matches creator's actual audience demographics and interests from Instagram Intelligence
+- Niche Alignment: Assess how well content aligns with creator's specific niche, sub-niches, and target audience from Instagram Intelligence
+- Visual Appeal: Assess against creator's established visual aesthetics, tone of voice, and brand style from Instagram Intelligence
+- Average View Range: MUST be realistic based on creator's follower count, historical performance, and average views status from Instagram Intelligence
+- Engagement %: Predict based on creator's actual engagement patterns, overall engagement rate, and audience behavior from Instagram Intelligence
+- Aesthetics Score: Compare to creator's proven visual aesthetics, editing techniques, and performance elements from Instagram Intelligence
 
 CONTENT-SPECIFIC ANALYSIS:
-- If content matches creator's niche: Higher scores for alignment
-- If content differs from creator's niche: Lower scores but suggest niche-specific improvements
-- Recommendations must be actionable for THIS creator's audience and platform
+- If content matches creator's niche and proven content themes: Higher scores for alignment
+- If content differs from creator's niche: Lower scores but suggest niche-specific improvements based on Instagram Intelligence
+- Compare content to creator's representative content examples and key content themes from Instagram Intelligence
+- Use creator's key hashtags and content patterns for optimization suggestions
+- Recommendations must be actionable for THIS creator's specific audience demographics and platform
+- Leverage creator's viral content analysis and performance patterns for predictions
 
 Provide the following metrics based on ACTUAL video content AND creator profile:
 
@@ -122,10 +171,12 @@ REQUIRED METRICS:
 
 CONTENT ANALYSIS:
 - Summary: Detailed description of what's actually happening in the video (2-3 sentences)
-- Suggestions: Deliver 5 specific, futuristic recommendations framed as if revealing the hidden levers of the content’s performance. Each suggestion must feel like a precise prediction with optimization proof, such as retention improvement, engagement uplift, or resonance boost. Do not use timelines or date-based forecasts. Example formats:
-  - "This content is strong on emotional pull but weak on call-to-action. Here’s a line you can add."
+- Suggestions: Deliver 5 specific, futuristic recommendations framed as if revealing the hidden levers of the content's performance. Each suggestion must feel like a precise prediction with optimization proof, such as retention improvement, engagement uplift, or resonance boost. Do not use timelines or date-based forecasts. Base recommendations on creator's proven content patterns, audience preferences, and performance history from Instagram Intelligence. Example formats:
+  - "This content is strong on emotional pull but weak on call-to-action. Here's a line you can add."
   - "Try trimming first 1.2s intro → boosts reach by +22%."
   - "Most people will drop at 3.4s. Adding text overlay here like 'Wait for the twist' → +18% retention."
+  - "Based on your proven content themes, adding [specific element] → +15% engagement with your target audience."
+  - "Your audience responds best to [specific style] - incorporate this → +20% relatability score."
 
 Required JSON structure:
 {
@@ -181,6 +232,23 @@ Required JSON structure:
                     personalizedFallback.summary = 'Personalized video analysis requires Vertex AI configuration. Your creator profile shows specific niche and audience data that would be used for tailored predictions.';
                     personalizedFallback.suggestions = '1. Configure Vertex AI for niche-specific video analysis\n2. Set up GCP project and service account\n3. Enable Vertex AI API for personalized predictions\n4. Configure authentication for creator profile integration\n5. Implement multimodal analysis with your specific audience data';
                 }
+            }
+
+            // If we have Instagram Creator Intelligence data, enhance fallback further
+            if (hasRealInstagramIntelligence) {
+                // Extract key intelligence elements for enhanced fallback
+                const hasInstagramFollowers = instagramIntelligence.includes('Followers:') && !instagramIntelligence.includes('Followers: -');
+                const hasInstagramNiche = instagramIntelligence.includes('Primary Niche:') && !instagramIntelligence.includes('Primary Niche: -');
+                const hasEngagementData = instagramIntelligence.includes('Overall Engagement Rate:') && !instagramIntelligence.includes('Overall Engagement Rate: -');
+                
+                if (hasInstagramFollowers && hasInstagramNiche && hasEngagementData) {
+                    personalizedFallback.summary = 'Enhanced personalized video analysis requires Vertex AI configuration. Your Instagram Creator Intelligence data shows detailed audience insights, content patterns, and performance history that would be used for hyper-personalized predictions.';
+                    personalizedFallback.suggestions = '1. Configure Vertex AI for Instagram Intelligence-powered video analysis\n2. Set up GCP project and service account\n3. Enable Vertex AI API for deep personalization\n4. Configure authentication for Instagram Creator Intelligence integration\n5. Implement multimodal analysis with your proven content patterns and audience data';
+                }
+            } else if (instagramIntelligence.includes('CREATOR PROFILE FALLBACK')) {
+                // Handle creator profile fallback case
+                personalizedFallback.summary = 'Personalized video analysis requires Vertex AI configuration. Your creator profile data would be used for tailored predictions based on your niche and audience preferences.';
+                personalizedFallback.suggestions = '1. Configure Vertex AI for creator profile-powered video analysis\n2. Set up GCP project and service account\n3. Enable Vertex AI API for personalized predictions\n4. Configure authentication for creator profile integration\n5. Connect Instagram for enhanced intelligence data\n6. Implement multimodal analysis with your creator profile data';
             }
             
             analysisText = JSON.stringify(personalizedFallback);

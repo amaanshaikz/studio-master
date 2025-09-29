@@ -9,7 +9,9 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "setup-veo": "./scripts/setup-veo-3-fast.sh",
+    "test-veo": "node scripts/test-veo-3-fast.js"
   },
   "dependencies": {
     "@auth/prisma-adapter": "^2.10.0",

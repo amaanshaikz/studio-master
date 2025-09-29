@@ -20,7 +20,8 @@ import {
   Zap,
   ArrowRight,
   Video,
-  RefreshCw
+  RefreshCw,
+  Instagram
 } from 'lucide-react';
 import { signOut } from 'next-auth/react';
 import PlatformIntegration from '@/components/platforms/PlatformIntegration';
@@ -332,9 +333,9 @@ export default function AccountPage() {
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="pt-6">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="flex flex-col sm:flex-row gap-4">
                     <Button 
-                      className="h-16 bg-gradient-to-r from-primary to-accent hover:from-primary/90 hover:to-accent/90 border-0 shadow-lg"
+                      className="h-16 bg-gradient-to-r from-primary to-accent hover:from-primary/90 hover:to-accent/90 border-0 shadow-lg flex-1"
                       onClick={() => router.push('/copilot')}
                     >
                       <div className="text-left w-full flex items-center justify-between">
@@ -346,41 +347,50 @@ export default function AccountPage() {
                       </div>
                     </Button>
                     <Button 
-                      variant="outline" 
-                      className="h-16 border-gray-700 hover:bg-gray-800/50 text-white shadow-lg"
-                      onClick={() => router.push('/copilot?tool=script')}
+                      className="h-16 bg-gradient-to-r from-pink-500 to-purple-500 hover:from-pink-600 hover:to-purple-600 border-0 shadow-lg flex-1"
+                      onClick={() => router.push('/connect-instagram')}
                     >
                       <div className="text-left w-full flex items-center justify-between">
                         <div>
-                          <div className="font-semibold text-lg">Generate Scripts</div>
-                          <div className="text-xs opacity-90">Create viral content</div>
-                        </div>
-                        <ArrowRight className="w-4 h-4" />
-                      </div>
-                    </Button>
-                    <Button 
-                      variant="outline" 
-                      className="h-16 border-gray-700 hover:bg-gray-800/50 text-white shadow-lg"
-                      onClick={() => router.push('/copilot?tool=captions')}
-                    >
-                      <div className="text-left w-full flex items-center justify-between">
-                        <div>
-                          <div className="font-semibold text-lg">Create Captions</div>
-                          <div className="text-xs opacity-90">Engaging social media captions</div>
-                        </div>
-                        <ArrowRight className="w-4 h-4" />
-                      </div>
-                    </Button>
-                    <Button variant="outline" className="h-16 border-gray-700 hover:bg-gray-800/50 text-white shadow-lg">
-                      <div className="text-left w-full flex items-center justify-between">
-                        <div>
-                          <div className="font-semibold text-lg">Settings</div>
-                          <div className="text-xs opacity-90">Manage preferences</div>
+                          <div className="font-semibold text-lg flex items-center gap-2">
+                            <Instagram className="w-5 h-5" />
+                            Connect Instagram
+                          </div>
+                          <div className="text-xs opacity-90">Analyze your creator profile</div>
                         </div>
                         <ArrowRight className="w-4 h-4" />
                       </div>
                     </Button>
                   </div>
+                </CardContent>
+              </Card>
+
+              {/* Settings Section */}
+              <Card className="border border-gray-800 bg-gray-900/50 backdrop-blur-sm">
+                <CardHeader className="border-b border-gray-800">
+                  <CardTitle className="flex items-center gap-3 text-lg text-white">
+                    <div className="p-2 rounded-lg bg-blue-900/50 border border-blue-700/50">
+                      <Settings className="w-5 h-5 text-blue-400" />
+                    </div>
+                    Settings & Preferences
+                  </CardTitle>
+                  <CardDescription className="text-gray-400">
+                    Manage your account settings and preferences
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="pt-6">
+                  <Button 
+                    className="w-full h-12 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 border-0 shadow-lg"
+                    onClick={() => router.push('/settings')}
+                  >
+                    <div className="flex items-center justify-between w-full">
+                      <div className="flex items-center gap-3">
+                        <Settings className="w-5 h-5" />
+                        <span className="font-semibold">Open Settings</span>
+                      </div>
+                      <ArrowRight className="w-4 h-4" />
+                    </div>
+                  </Button>
                 </CardContent>
               </Card>
             </div>

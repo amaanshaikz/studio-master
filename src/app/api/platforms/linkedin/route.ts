@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
 import { PlatformDatabase } from '@/lib/platform-database';
+export const runtime = 'nodejs';
 import { TokenRefreshService } from '@/lib/token-refresh';
 
 export async function GET(request: NextRequest) {
@@ -244,4 +245,4 @@ export async function POST(request: NextRequest) {
       error: 'Internal server error' 
     }, { status: 500 });
   }
-} 
+}

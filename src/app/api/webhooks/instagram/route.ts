@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import crypto from 'crypto';
 import { PlatformDatabase } from '@/lib/platform-database';
+export const runtime = 'nodejs';
 
 // Instagram webhook verification and data handling
 export async function GET(request: NextRequest) {
@@ -176,4 +177,4 @@ async function processInstagramChangeEvent(change: any) {
   } catch (error) {
     console.error('Error processing Instagram change event:', error);
   }
-} 
+}
