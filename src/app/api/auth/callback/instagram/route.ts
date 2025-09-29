@@ -1,4 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
+export const runtime = 'nodejs';
+export const dynamic = 'force-dynamic';
 import { auth } from '@/lib/auth';
 import { PlatformDatabase } from '@/lib/platform-database';
 

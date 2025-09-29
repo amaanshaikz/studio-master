@@ -1,10 +1,14 @@
 import { createClient } from '@supabase/supabase-js';
 import { encryptToken, decryptToken, safeDecryptToken } from './token-encryption';
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
-
-const supabase = createClient(supabaseUrl, supabaseServiceKey);
+function getSupabase() {
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  if (!supabaseUrl || !supabaseServiceKey) {
+    throw new Error('Supabase env vars missing');
+  }
+  return createClient(supabaseUrl, supabaseServiceKey);
+}
 
 export interface PlatformConnection {
   id: string;
@@ -93,6 +97,7 @@ export class PlatformDatabase {
     const encryptedAccessToken = encryptToken(accessToken);
     const encryptedRefreshToken = refreshToken ? encryptToken(refreshToken) : null;
 
+    const supabase = getSupabase();
     const { data, error } = await supabase
       .from('platform_connections')
       .upsert({
@@ -124,6 +129,7 @@ export class PlatformDatabase {
     userId: string,
     platform: 'instagram' | 'linkedin'
   ): Promise<PlatformConnection | null> {
+    const supabase = getSupabase();
     const { data, error } = await supabase
       .from('platform_connections')
       .select('*')
@@ -181,6 +187,7 @@ export class PlatformDatabase {
     userId: string,
     platform: 'instagram' | 'linkedin'
   ): Promise<void> {
+    const supabase = getSupabase();
     const { error } = await supabase
       .from('platform_connections')
       .update({ is_active: false, updated_at: new Date().toISOString() })
@@ -202,6 +209,7 @@ export class PlatformDatabase {
     instagramUserId: string,
     data: Partial<InstagramData>
   ): Promise<InstagramData> {
+    const supabase = getSupabase();
     const { data: result, error } = await supabase
       .from('instagram_data')
       .upsert({
@@ -223,6 +231,7 @@ export class PlatformDatabase {
   }
 
   static async getInstagramData(userId: string): Promise<InstagramData | null> {
+    const supabase = getSupabase();
     const { data, error } = await supabase
       .from('instagram_data')
       .select('*')
@@ -249,6 +258,7 @@ export class PlatformDatabase {
     linkedinUserId: string,
     data: Partial<LinkedInData>
   ): Promise<LinkedInData> {
+    const supabase = getSupabase();
     const { data: result, error } = await supabase
       .from('linkedin_data')
       .upsert({
@@ -270,6 +280,7 @@ export class PlatformDatabase {
   }
 
   static async getLinkedInData(userId: string): Promise<LinkedInData | null> {
+    const supabase = getSupabase();
     const { data, error } = await supabase
       .from('linkedin_data')
       .select('*')
@@ -295,6 +306,7 @@ export class PlatformDatabase {
     eventType: string,
     eventData: any
   ): Promise<WebhookEvent> {
+    const supabase = getSupabase();
     const { data, error } = await supabase
       .from('webhook_events')
       .insert({
@@ -319,6 +331,7 @@ export class PlatformDatabase {
     eventId: string,
     errorMessage?: string
   ): Promise<void> {
+    const supabase = getSupabase();
     const { error } = await supabase
       .from('webhook_events')
       .update({
@@ -338,6 +351,7 @@ export class PlatformDatabase {
   static async getUnprocessedWebhookEvents(
     platform?: 'instagram' | 'linkedin'
   ): Promise<WebhookEvent[]> {
+    const supabase = getSupabase();
     let query = supabase
       .from('webhook_events')
       .select('*')
